@@ -3,8 +3,6 @@ const scriptName = "challenge.js";
 var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();    //절대경로
 var filepathRead = "/storage/emulated/0/KakaoTalkDownload/calendar/";
 var filepathSave = "/storage/emulated/0/KakaoTalkDownload/calendar/save/";
-var inputBible = ["오늘 성경", "어제 성경","내일 성경","이번주 성경","이번달 성경","월 성경","날짜 성경"];
-var inputEtc = ["심심해", "점심"];
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
 
@@ -14,25 +12,28 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
-        var data = checkProof(month, day); // 1월 달력
-        replier.reply(sender+"님");
-        replier.reply(data);
-        var filename = sender+".csv";
-
+        var data = checkProof(month, day, sender); // 달력
+        var filename = senderFileName(sender,month);
         save(filepathSave,filename,data);
+
+        var printData = printInfo(sender,month);
+        replier.reply(sender+"님");
+        replier.reply(printData);
+
     }
 
     if(msg == "#ㅊㅅ" || msg == "#취소"){
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
-        replier.reply(month);
-        var data = cancelProof(month, day); // 1월 달력
-        replier.reply(sender+"님");
-        replier.reply(data);
-        var filename = sender+".csv";
-
+        var data = cancelProof(month, day, sender); // 달력
+        var filename = senderFileName(sender,month);
         save(filepathSave,filename,data);
+
+        var printData = printInfo(sender,month);
+        replier.reply(sender+"님");
+        replier.reply(printData);
+
     }
 
 }
@@ -95,34 +96,88 @@ function save(path, filename, content)
     fos.close();
 }
 
-function checkProof(month, day){
-    var data = read(filepathRead, month+"월.csv");
-    var fullCalendar = ""
-    for(var row=0 ; row<data.length ; row++){
-        for(var col = 0 ; col <data[0].length ; col++) {
-            if(day == data[row][col]){
-                data[row][col] = "xx";
+function printInfo(sender, month) {
+    var filename = senderFileName(sender,month);
+    var userData = read(filepathSave, filename);
+    var fullCalendar = "";
+
+    // 오늘 날짜 읽기 표시하기
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <userData[0].length ; col++) {
+            fullCalendar += userData[row][col]+"  ";
+        }
+        fullCalendar+="\n";
+    }
+    return fullCalendar;
+}
+function checkProof(month, day, sender){
+    var calendar = read(filepathRead, month+"월.csv");
+    var filename = senderFileName(sender,month);
+    var userData = read(filepathSave, filename);
+    var fullCalendar = "";
+    var indexR = 0;
+    var indexC = 0;
+
+    // 오늘 날짜 인덱스 가져오기
+    var index = getTodayIndex(calendar, day);
+    indexR = index[0];
+    indexC = index[1];
+
+    // 오늘 날짜 읽기 표시하기
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <userData[0].length ; col++) {
+            if(row == indexR && col == indexC){
+                userData[row][col] = "xx";
             }
-            fullCalendar += data[row][col]+"  ";
+            fullCalendar += userData[row][col]+"\t";
         }
         fullCalendar+="\n";
     }
     return fullCalendar;
 }
 
-function cancelProof(month, day){
-    var data = read(filepathRead, month+"월.csv");
-    var fullCalendar = ""
-    for(var row=0 ; row<data.length ; row++){
-        for(var col = 0 ; col <data[0].length ; col++) {
-            if(day == data[row][col]){
-                data[row][col] = day;
+function cancelProof(month, day,sender){
+    var calendar = read(filepathRead, month+"월.csv");
+    var filename = senderFileName(sender,month);
+    var userData = read(filepathSave, filename);
+    var fullCalendar = "";
+    var indexR = 0;
+    var indexC = 0;
+
+    // 오늘 날짜 인덱스 가져오기
+    var index = getTodayIndex(calendar, day);
+    indexR = index[0];
+    indexC = index[1];
+
+    // 오늘 날짜 인증 취소하기
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <userData[0].length ; col++) {
+            if(row == indexR && col == indexC){
+                userData[row][col] = day;
             }
-            fullCalendar += data[row][col]+"  ";
+            fullCalendar += userData[row][col]+"\t";
         }
         fullCalendar+="\n";
     }
     return fullCalendar;
+}
+
+function getTodayIndex(calendar,day) {
+    var index = [0,0];
+    for(var row=0 ; row<calendar.length ; row++){
+        for(var col = 0 ; col <calendar[0].length ; col++) {
+            if(calendar[row][col] == day){
+                index[0] = row;
+                index[1] = col;
+            }
+        }
+    }
+    return index;
+}
+
+function senderFileName(sender,month) {
+    var filename = sender+month+".csv";
+    return filename;
 }
 
 function getMonth(date) {

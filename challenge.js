@@ -36,6 +36,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
+
 }
 
 function test(replier,msg) {
@@ -99,6 +100,7 @@ function save(path, filename, content)
 function printInfo(sender, month) {
     var filename = senderFileName(sender,month);
     var userData = read(filepathSave, filename);
+
     var fullCalendar = "";
 
     // 오늘 날짜 읽기 표시하기
@@ -110,10 +112,18 @@ function printInfo(sender, month) {
     }
     return fullCalendar;
 }
+
 function checkProof(month, day, sender){
     var calendar = read(filepathRead, month+"월.csv");
-    var filename = senderFileName(sender,month);
-    var userData = read(filepathSave, filename);
+    var file = new java.io.File(filepathSave+sender);
+    var userData;
+    if(file.exists() == false) {
+        userData = calendar;
+    } else {
+        var filename = senderFileName(sender,month);
+        userData = read(filepathSave, filename);
+    }
+
     var fullCalendar = "";
     var indexR = 0;
     var indexC = 0;
@@ -127,7 +137,7 @@ function checkProof(month, day, sender){
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <userData[0].length ; col++) {
             if(row == indexR && col == indexC){
-                userData[row][col] = "xx";
+                userData[row][col] = "✅";
             }
             fullCalendar += userData[row][col]+"\t";
         }
@@ -193,12 +203,4 @@ function getDay(date) {
     }
 
     return day;
-}
-
-function getFulldateStr(date) {
-    var year = date.split('-')[0];
-    var month = date.split('-')[1];
-    var day = date.split('-')[2];
-
-    return year+"년 "+month+"월 "+day+"일";
 }

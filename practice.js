@@ -13,7 +13,7 @@ const scriptName = "practice";
 // var allsee = new Array(1000).join(String.formatCharCode(847));
 var rspCountWin = 0;
 var rspCountLose = 0;
-var inputGame = ["안녕","바보","가위바위보","전적 초기화","인사","홀짝"];
+var inputGame = ["안녕","바보","가위바위보","전적 초기화","인사","홀짝","심심해"];
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
 
@@ -24,7 +24,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     // msg 공백제거
     msg = trimSpace(msg);
 
-    if (msg == "심심해") {
+    if (msg == inputGame[6]) {
         for (var i2 = 0; i2 < inputGame.length; i2++) {
             help += i2+1+". "+inputGame[i2];
             if (i2 == 2) {
@@ -119,7 +119,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
 
     if(msg == inputGame[4]){
-        replier.reply("안녕하세요! 저는 딘봇입니다\n아직 해외가상번호를 쓰고 있어서\n친구 추가를 하지 않으면\n프사가 보이스피싱 같아요 T^T\n\n키워드를 입력하면\n*맥체인 성경읽기* 범위를 알려드려요!\n키워드 또는 딘봇 또는 목록 을 입력하면\n키워드를 확인하실 수 있습니다 :)");
+        replier.reply("안녕하세요! 저는 얼봇입니다\n아직 해외가상번호를 쓰고 있어서\n친구 추가를 하지 않으면\n프사가 보이스피싱 같아요 T^T\n\n키워드를 입력하면\n*맥체인 성경읽기* 범위를 알려드려요!\n키워드 또는 얼봇 또는 목록 을 입력하면\n키워드를 확인하실 수 있습니다 :)");
     }
 
     if(msg == inputGame[5]){

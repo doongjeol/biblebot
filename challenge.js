@@ -11,15 +11,14 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     // msg 공백제거
     msg = trimSpace(msg);
 
-    // 목록
-    var help = "";
+    // 인증 체크
     if(msg == "#ㅇㅈ" || msg == "#인증"){
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
         var data = checkProof(month, day, sender,replier); // 달력
         var filename = senderFileName(sender,month);
-        save(filepathSave,filename,data);
+        save(filepathSave+sender+"/",filename,data);
 
         var printData = printInfo(sender,month);
         replier.reply(sender+"님");
@@ -27,13 +26,14 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
+    // 인증 취소
     if(msg == "#ㅊㅅ" || msg == "#취소"){
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
         var data = cancelProof(month, day, sender, replier); // 달력
         var filename = senderFileName(sender,month);
-        save(filepathSave,filename,data);
+        save(filepathSave+sender+"/",filename,data);
 
         var printData = printInfo(sender,month);
         replier.reply(sender+"님");
@@ -41,20 +41,52 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
-
-    if(msg.includes("#")&&msg.includes("월")&&msg.includes("ㅇㅈ")){
+    // 특정 달의 인증 현황 보기
+    if(msg.includes("#")&&msg.includes("월")&&msg.includes("ㅈㅎ")){
         var msgArr = msg.split("월");
         var month = msgArr[0].substring(1,msgArr[0].length);
         var printData = printInfo(sender,month);
         replier.reply(printData);
     }
 
+    // 이번달의 인증 현황 보기
     if(msg == "#ㅈㅎ"){
         var date = new Date();
         var month = getMonth(date);
         var printData = printInfo(sender,month);
         replier.reply(printData);
     }
+
+    // 특정 날짜 인증
+    if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")&&msg.includes("ㅇㅈ")){
+        var msgArr1 = msg.split("월");
+        var month = msgArr1[0].substring(1,msgArr1[0].length);
+        var msgArr2 = msgArr1[1].split("일");
+        var day = msgArr2[0].substring(0,msgArr2[0].length);
+        var data = checkProof(month, day, sender,replier); // 달력
+        var filename = senderFileName(sender,month);
+        save(filepathSave+sender+"/",filename,data);
+
+        var printData = printInfo(sender,month);
+        replier.reply(sender+"님");
+        replier.reply(printData);
+    }
+
+    // 특정 날짜 인증 취소
+    if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")&&msg.includes("ㅊㅅ")){
+        var msgArr1 = msg.split("월");
+        var month = msgArr1[0].substring(1,msgArr1[0].length);
+        var msgArr2 = msgArr1[1].split("일");
+        var day = msgArr2[0].substring(0,msgArr2[0].length);
+        var data = cancelProof(month, day, sender,replier); // 달력
+        var filename = senderFileName(sender,month);
+        save(filepathSave+sender+"/",filename,data);
+
+        var printData = printInfo(sender,month);
+        replier.reply(sender+"님");
+        replier.reply(printData);
+    }
+
 
 
 }
@@ -118,8 +150,19 @@ function save(path, filename, content)
 }
 
 function printInfo(sender, month) {
+    var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
     var filename = senderFileName(sender,month);
-    var userData = read(filepathSave, filename);
+    var userData ;
+
+    try{
+        userData = read(filepathSave+sender+"/", filename);
+        // replier.reply(userData[0][0]); //debug
+    } catch (error) {
+        replier.reply(error);
+    }
+    if(userData == null){
+        userData = calendarEmoji;
+    }
 
     var fullCalendar = "";
 
@@ -140,7 +183,7 @@ function checkProof(month, day, sender, replier){
     var userData ;
 
     try{
-        userData = read(filepathSave, filename);
+        userData = read(filepathSave+sender+"/", filename);
         // replier.reply(userData[0][0]); //debug
     } catch (error) {
         replier.reply(error);
@@ -185,7 +228,7 @@ function cancelProof(month, day,sender, replier){
     var userData ;
 
     try{
-        userData = read(filepathSave, filename);
+        userData = read(filepathSave+sender+"/", filename);
         // replier.reply(userData[0][0]); //debug
     } catch (error) {
         replier.reply(error);

@@ -12,7 +12,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
-        var data = checkProof(month, day, sender); // 달력
+        var data = checkProof(month, day, sender,replier); // 달력
         var filename = senderFileName(sender,month);
         save(filepathSave,filename,data);
 
@@ -36,18 +36,10 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
-    if(msg == "d" || msg == "ㅇ"){
-        var date = new Date();
-        var month = getMonth(date);
-        var day = getDay(date);
-        var data = checkProofDebug(month, day, sender,replier); // 달력
-        var filename = senderFileName(sender,month);
-        save(filepathSave,filename,data);
-
-        var printData = printInfo(sender,month);
-        replier.reply(sender+"님");
+    //debug
+    if(msg == "cccc"){
+        var printData = printInfo(sender,12);
         replier.reply(printData);
-
     }
 
 
@@ -127,18 +119,20 @@ function printInfo(sender, month) {
     return fullCalendar;
 }
 
-// debug
-function checkProofDebug(month, day, sender, replier){
+function checkProof(month, day, sender, replier){
     var calendar = read(filepathRead, month+"월.csv");
-    var file = new java.io.File(filepathSave+sender);
-    var userData;
-    if(file.exists() == false) {
-        userData = calendar;
-        replier.reply("있다.");
-    } else {
-        var filename = senderFileName(sender,month);
+    var filename = senderFileName(sender,month);
+    var userData ;
+
+    try{
         userData = read(filepathSave, filename);
-        replier.reply("없없다.";
+        // replier.reply(userData[0][0]); //debug
+    } catch (error) {
+        replier.reply("error");
+    }
+    if(userData == null){
+        userData = calendar;
+        replier.reply("없다.");
     }
 
     var fullCalendar = "";
@@ -153,39 +147,7 @@ function checkProofDebug(month, day, sender, replier){
     // 오늘 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <userData[0].length ; col++) {
-            if(row == indexR && col == indexC){
-                userData[row][col] = "✅";
-            }
-            fullCalendar += userData[row][col]+"\t";
-        }
-        fullCalendar+="\n";
-    }
-    return fullCalendar;
-}
-
-function checkProof(month, day, sender){
-    var calendar = read(filepathRead, month+"월.csv");
-    var file = new java.io.File(filepathSave+sender);
-    var userData;
-    if(file.exists() == false) {
-        userData = calendar;
-    } else {
-        var filename = senderFileName(sender,month);
-        userData = read(filepathSave, filename);
-    }
-
-    var fullCalendar = "";
-    var indexR = 0;
-    var indexC = 0;
-
-    // 오늘 날짜 인덱스 가져오기
-    var index = getTodayIndex(calendar, day);
-    indexR = index[0];
-    indexC = index[1];
-
-    // 오늘 날짜 읽기 표시하기
-    for(var row=0 ; row<userData.length ; row++){
-        for(var col = 0 ; col <userData[0].length ; col++) {
+            // replier.reply(userData[row][col]); //debug
             if(row == indexR && col == indexC){
                 userData[row][col] = "✅";
             }

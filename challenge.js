@@ -46,6 +46,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         var msgArr = msg.split("월");
         var month = msgArr[0].substring(1,msgArr[0].length);
         var printData = printInfo(sender,month);
+        replier.reply(sender+"님");
         replier.reply(printData);
     }
 
@@ -54,6 +55,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         var date = new Date();
         var month = getMonth(date);
         var printData = printInfo(sender,month);
+        replier.reply(sender+"님");
         replier.reply(printData);
     }
 

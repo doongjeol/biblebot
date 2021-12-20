@@ -100,42 +100,21 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
 
     // 날짜 성경
-    if(msg.includes("월")&&msg.includes("일")&& msg.includes("성경")) {
-        var monthIndex = msg.indexOf('월');
-        var dateIndex = msg.indexOf('일');
-        var month = msg.substring(0, monthIndex);
-        var date = msg.substring(monthIndex+1, dateIndex);
+    try {
+        if (msg.includes("월") && msg.includes("일") && msg.includes("성경")) {
+            var monthIndex = msg.indexOf('월');
+            var dateIndex = msg.indexOf('일');
+            var month = msg.substring(0, monthIndex);
+            var date = msg.substring(monthIndex + 1, dateIndex);
 
-        // var warnMonth = "입력하신 월을 확인해주세요.";
-        // var warnDay = "입력하신 일을 확인해주세요"
-
-        // if(month < 0 && date >=13) {
-        //     replier.reply(warnMonth);
-        // }
-        // else if(month%2 == 1 && month <7){
-        //     if(date < 0 && date > 30)
-        //         replier.reply(warnDay);
-        // }
-        // else if(month%2 == 0 && month <7){
-        //     if(month == 2 && date < 0 && date >27)
-        //         replier.reply(warnDay);
-        //     else if(date < 0 && date > 31)
-        //         replier.reply(warnDay);
-        // }
-        // else if(month%2 == 1 && month >8){
-        //     if(date < 0 && date > 30)
-        //         replier.reply(warnDay);
-        // }
-        // else if(month%2 == 0 && month >8){
-        //     if(date < 0 && date > 31)
-        //         replier.reply(warnDay);
-        // }
-        // else {
             var formatDate = month + "-" + date;
             var specificBible = checkDateBibleExceptYear(formatDate);
             replier.reply("-- " + getFulldateStr(formatDate) + " 성경 --\n\n" +
                 specificBible[1] + "\n" + specificBible[2] + "\n" + specificBible[3] + "\n" + specificBible[4]);
-        // }
+
+        }
+    } catch(e){
+        replier.reply("입력하신 키워드를 확인해주세요.");
     }
 
 

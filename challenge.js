@@ -4,15 +4,28 @@ var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePat
 var filepathCallendarRaw = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_raw/";
 var filepathCallendarEmoji = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_emoji/";
 var filepathSave = "/storage/emulated/0/KakaoTalkDownload/challengeBot/userData/";
+var filepathList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/list/"
 var rawSuffix = "월_raw.csv";
 var emojiSuffix = "월_emoji.csv";
+var inputProof = ["#ㅇㅈ", "#인증","#ㅊㅅ","#취소","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅇㅈ","인증","ㅊㅅ","취소"];
+var outputSuffix = ["님 인증완료👏","님 취소완료🙂","월 조회결과🤗"];
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
     // msg 공백제거
     msg = trimSpace(msg);
 
+    // 목록
+    if(msg == inputProof[9]){
+        var list = read(filepathList,"prooflist.csv");
+        var help = "";
+        for(var i=0 ; i<list.length ; i++){
+            help+= list[i] + "\n";
+        }
+        replier.reply(help);
+    }
+
     // 인증 체크
-    if(msg == "#ㅇㅈ" || msg == "#인증"){
+    if(msg == inputProof[0] || msg == inputProof[1]){
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
@@ -21,13 +34,14 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         save(filepathSave+sender+"/",filename,data);
 
         var printData = printInfo(sender,month);
-        replier.reply(sender+"님");
-        replier.reply(printData);
+        replier.reply(sender+outputSuffix[0]);
+        replier.reply(month+"월\n"+printData);
+        sendCongratMsg(month, sender, replier)
 
     }
 
     // 인증 취소
-    if(msg == "#ㅊㅅ" || msg == "#취소"){
+    if(msg ==  inputProof[2] || msg == inputProof[3]){
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
@@ -36,65 +50,82 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         save(filepathSave+sender+"/",filename,data);
 
         var printData = printInfo(sender,month);
-        replier.reply(sender+"님");
-        replier.reply(printData);
+        replier.reply(sender+outputSuffix[1]);
+        replier.reply(month+"월\n"+printData);
 
     }
 
-    // 특정 달의 인증 현황 보기
-    if(msg.includes("#")&&msg.includes("월")&&msg.includes("ㅈㅎ")){
-        var msgArr = msg.split("월");
-        var month = msgArr[0].substring(1,msgArr[0].length);
-        var printData = printInfo(sender,month);
-        replier.reply(sender+"님");
-        replier.reply(printData);
+    var viewMonthFlag = false;
+    var viewDayFlag = false;
+
+    if(msg=="#월조회" || msg == "#월ㅈㅎ"){
+        replier.reply("'#N월 ㅈㅎ'로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
+    } else if(msg == "#월일인증" || msg == "#월일ㅇㅈ"){
+        replier.reply("'#N월 N일 ㅇㅈ'로 입력해주세요.\n" +"  예시 : #12월 25일 ㅇㅈ");
+    } else if(msg == "#월일취소" || msg == "#월일ㅊㅅ"){
+        replier.reply("'#N월 N일 ㅊㅅ'로 입력해주세요.\n" + "  예시 : #12월 25일 ㅊㅅ");
+    } else if(msg == "#월일조회" || msg == "#월일ㅈㅎ"){
+        replier.reply("'#N월 ㅈㅎ'로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
+    } else if(msg.includes("#")&&msg.includes("월")&&!msg.includes("일")){
+        viewMonthFlag = true;
+    } else if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")) {
+        viewDayFlag = true;
     }
 
-    // 이번달의 인증 현황 보기
-    if(msg == "#ㅈㅎ"){
-        var date = new Date();
-        var month = getMonth(date);
-        var printData = printInfo(sender,month);
-        replier.reply(sender+"님");
-        replier.reply(printData);
+    try {
+        // 특정 달의 인증 현황 보기
+        if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5]))) {
+            var msgArr = msg.split("월");
+            var month = msgArr[0].substring(1, msgArr[0].length);
+            var printData = printInfo(sender, month);
+            replier.reply(sender + "님 " + month + outputSuffix[2]);
+            replier.reply(month + "월\n" + printData);
+        }
+
+        // 이번달의 인증 현황 보기
+        if (msg == inputProof[6] || msg == inputProof[7]) {
+            var date = new Date();
+            var month = getMonth(date);
+            var printData = printInfo(sender, month);
+            replier.reply(sender + "님 " + month + outputSuffix[2]);
+            replier.reply(month + "월\n" + printData);
+        }
+
+        // 특정 날짜 인증
+        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9]))) {
+            var msgArr1 = msg.split("월");
+            var month = msgArr1[0].substring(1, msgArr1[0].length);
+            var msgArr2 = msgArr1[1].split("일");
+            var day = msgArr2[0].substring(0, msgArr2[0].length);
+            var data = checkProof(month, day, sender, replier); // 달력
+            var filename = senderFileName(sender, month);
+            save(filepathSave + sender + "/", filename, data);
+
+            var printData = printInfo(sender, month);
+            replier.reply(sender + outputSuffix[0]);
+            replier.reply(month + "월\n" + printData);
+            sendCongratMsg(month, sender, replier)
+        }
+
+        // 특정 날짜 인증 취소
+        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11]))) {
+            var msgArr1 = msg.split("월");
+            var month = msgArr1[0].substring(1, msgArr1[0].length);
+            var msgArr2 = msgArr1[1].split("일");
+            var day = msgArr2[0].substring(0, msgArr2[0].length);
+            var data = cancelProof(month, day, sender, replier); // 달력
+            var filename = senderFileName(sender, month);
+            save(filepathSave + sender + "/", filename, data);
+
+            var printData = printInfo(sender, month);
+            replier.reply(sender + outputSuffix[1]);
+            replier.reply(month + "월\n" + printData);
+        }
+    } catch (e) {
+        replier.reply("입력하신 키워드를 확인해주세요.");
+
     }
 
-    // 특정 날짜 인증
-    if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")&&msg.includes("ㅇㅈ")){
-        var msgArr1 = msg.split("월");
-        var month = msgArr1[0].substring(1,msgArr1[0].length);
-        var msgArr2 = msgArr1[1].split("일");
-        var day = msgArr2[0].substring(0,msgArr2[0].length);
-        var data = checkProof(month, day, sender,replier); // 달력
-        var filename = senderFileName(sender,month);
-        save(filepathSave+sender+"/",filename,data);
-
-        var printData = printInfo(sender,month);
-        replier.reply(sender+"님");
-        replier.reply(printData);
-    }
-
-    // 특정 날짜 인증 취소
-    if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")&&msg.includes("ㅊㅅ")){
-        var msgArr1 = msg.split("월");
-        var month = msgArr1[0].substring(1,msgArr1[0].length);
-        var msgArr2 = msgArr1[1].split("일");
-        var day = msgArr2[0].substring(0,msgArr2[0].length);
-        var data = cancelProof(month, day, sender,replier); // 달력
-        var filename = senderFileName(sender,month);
-        save(filepathSave+sender+"/",filename,data);
-
-        var printData = printInfo(sender,month);
-        replier.reply(sender+"님");
-        replier.reply(printData);
-    }
-
-
-
-}
-
-function test(replier,msg) {
-    replier.reply(msg);
 }
 
 function trimSpace(str) {
@@ -158,7 +189,6 @@ function printInfo(sender, month) {
 
     try{
         userData = read(filepathSave+sender+"/", filename);
-        // replier.reply(userData[0][0]); //debug
     } catch (error) {
         replier.reply(error);
     }
@@ -186,7 +216,6 @@ function checkProof(month, day, sender, replier){
 
     try{
         userData = read(filepathSave+sender+"/", filename);
-        // replier.reply(userData[0][0]); //debug
     } catch (error) {
         replier.reply(error);
     }
@@ -264,6 +293,116 @@ function cancelProof(month, day,sender, replier){
         fullCalendar+="\n";
     }
     return fullCalendar;
+}
+
+function isCheckAll(month,sender,replier) {
+    var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
+    var filename = senderFileName(sender,month);
+    var userData ;
+
+    try{
+        userData = read(filepathSave+sender+"/", filename);
+    } catch (error) {
+        replier.reply(error);
+    }
+
+    var isAll = false;
+    var indexFirstR = 0;
+    var indexFirstC = 0;
+    var indexLastR = 0;
+    var indexLastC = 0;
+
+    // 달력 1일과 마지막일 인덱스 가져오기
+    var index = getMonthIndex(calendarRaw, month);
+    indexFirstR = index[0];
+    indexFirstC = index[1];
+    indexLastR = index[2];
+    indexLastC = index[3];
+    var flag = true;
+
+    if((indexFirstR == 0 && indexFirstC == 0) || (indexLastR == 0 && indexLastC == 0)){
+        flag = false;
+    }
+
+    // 검증하기
+    var count = 0;
+    for(var row = indexFirstR ; row<calendarRaw.length ; row++){
+        for(var col = 0 ; col <calendarRaw[0].length ; col++) {
+            if(!flag){
+                break;
+            } else if(row == indexFirstR && col >= indexFirstC && userData[row][col] == "✅"){
+                count ++;
+            } else if(row == indexLastR && col <= indexLastC && userData[row][col] == "✅"){
+                count ++;
+            } else if(row > indexFirstR && row < indexLastR && userData[row][col] == "✅"){
+                count ++;
+            }
+        }
+    }
+    var flag31 = false;
+    var flag30 = false;
+    if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+        flag31 = true;
+    if(month == 4 || month == 6 || month == 9 || month == 11)
+        flag30 = true;
+
+    if(flag31){
+        if(count == 31)
+            isAll = true;
+    }
+
+    if(flag30){
+        if(count == 30)
+            isAll = true;
+    }
+
+    if(month == 2){
+        if(count == 28)
+            isAll = true;
+    }
+
+    return isAll;
+}
+
+function sendCongratMsg(month, sender, replier) {
+    var isAll = isCheckAll(month,sender,replier);
+    if(isAll){
+        var congratList = read(filepathList,"congrat.csv");
+        var congratMsg = congratList[Math.floor((Math.random() * congratList.length))];
+        replier.reply(sender+"님 "+month+"월 인증을 모두 완료하셨습니다 !"+"\n"+congratMsg);
+    }
+
+}
+
+function getMonthIndex(calendar,month) {
+    var index = [0,0,0,0];
+    var flag31 = false;
+    var flag30 = false;
+    if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+        flag31 = true;
+    if(month == 4 || month == 6 || month == 9 || month == 11)
+        flag30 = true;
+    for(var row=0 ; row<calendar.length ; row++){
+        for(var col = 0 ; col <calendar[0].length ; col++) {
+            if(calendar[row][col] == 1){
+                index[0] = row;
+                index[1] = col;
+            }
+            if(flag31 && calendar[row][col] == 31){
+                index[2] = row;
+                index[3] = col;
+            }
+            if(flag30 && calendar[row][col] == 30){
+                index[2] = row;
+                index[3] = col;
+            }
+            if(month == 2 && calendar[row][col] == 28){
+                index[2] = row;
+                index[3] = col;
+            }
+        }
+    }
+    return index;
 }
 
 function getTodayIndex(calendar,day) {

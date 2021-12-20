@@ -1,10 +1,15 @@
 const scriptName = "challenge.js";
 
 var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();    //절대경로
-var filepathRead = "/storage/emulated/0/KakaoTalkDownload/calendar/";
-var filepathSave = "/storage/emulated/0/KakaoTalkDownload/calendar/save/";
+var filepathCallendarRaw = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_raw/";
+var filepathCallendarEmoji = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_emoji/";
+var filepathSave = "/storage/emulated/0/KakaoTalkDownload/challengeBot/userData/";
+var rawSuffix = "월_raw.csv";
+var emojiSuffix = "월_emoji.csv";
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+    // msg 공백제거
+    msg = trimSpace(msg);
 
     // 목록
     var help = "";
@@ -26,7 +31,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         var date = new Date();
         var month = getMonth(date);
         var day = getDay(date);
-        var data = cancelProof(month, day, sender); // 달력
+        var data = cancelProof(month, day, sender, replier); // 달력
         var filename = senderFileName(sender,month);
         save(filepathSave,filename,data);
 
@@ -36,9 +41,18 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
-    //debug
-    if(msg == "cccc"){
-        var printData = printInfo(sender,12);
+
+    if(msg.includes("#")&&msg.includes("월")&&msg.includes("ㅇㅈ")){
+        var msgArr = msg.split("월");
+        var month = msgArr[0].substring(1,msgArr[0].length);
+        var printData = printInfo(sender,month);
+        replier.reply(printData);
+    }
+
+    if(msg == "#ㅈㅎ"){
+        var date = new Date();
+        var month = getMonth(date);
+        var printData = printInfo(sender,month);
         replier.reply(printData);
     }
 
@@ -120,7 +134,8 @@ function printInfo(sender, month) {
 }
 
 function checkProof(month, day, sender, replier){
-    var calendar = read(filepathRead, month+"월.csv");
+    var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
+    var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
     var filename = senderFileName(sender,month);
     var userData ;
 
@@ -128,11 +143,11 @@ function checkProof(month, day, sender, replier){
         userData = read(filepathSave, filename);
         // replier.reply(userData[0][0]); //debug
     } catch (error) {
-        replier.reply("error");
+        replier.reply(error);
     }
     if(userData == null){
-        userData = calendar;
-        replier.reply("없다.");
+        userData = calendarEmoji;
+        replier.reply(month+"월 "+"첫번째 인증이시네요 !🥳");
     }
 
     var fullCalendar = "";
@@ -140,15 +155,20 @@ function checkProof(month, day, sender, replier){
     var indexC = 0;
 
     // 오늘 날짜 인덱스 가져오기
-    var index = getTodayIndex(calendar, day);
+    var index = getTodayIndex(calendarRaw, day);
     indexR = index[0];
     indexC = index[1];
+    var flag = true;
+
+    if(indexR == 0 && indexC == 0){
+        flag = false;
+    }
 
     // 오늘 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <userData[0].length ; col++) {
             // replier.reply(userData[row][col]); //debug
-            if(row == indexR && col == indexC){
+            if(row == indexR && col == indexC && flag){
                 userData[row][col] = "✅";
             }
             fullCalendar += userData[row][col]+"\t";
@@ -158,24 +178,41 @@ function checkProof(month, day, sender, replier){
     return fullCalendar;
 }
 
-function cancelProof(month, day,sender){
-    var calendar = read(filepathRead, month+"월.csv");
+function cancelProof(month, day,sender, replier){
+    var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
+    var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
     var filename = senderFileName(sender,month);
-    var userData = read(filepathSave, filename);
+    var userData ;
+
+    try{
+        userData = read(filepathSave, filename);
+        // replier.reply(userData[0][0]); //debug
+    } catch (error) {
+        replier.reply(error);
+    }
+    if(userData == null){
+        userData = calendarEmoji;
+    }
+
     var fullCalendar = "";
     var indexR = 0;
     var indexC = 0;
 
     // 오늘 날짜 인덱스 가져오기
-    var index = getTodayIndex(calendar, day);
+    var index = getTodayIndex(calendarRaw, day);
     indexR = index[0];
     indexC = index[1];
+    var flag = true;
+
+    if(indexR == 0 && indexC == 0){
+        flag = false;
+    }
 
     // 오늘 날짜 인증 취소하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <userData[0].length ; col++) {
-            if(row == indexR && col == indexC){
-                userData[row][col] = day;
+            if(row == indexR && col == indexC && flag){
+                userData[row][col] = calendarEmoji[row][col];
             }
             fullCalendar += userData[row][col]+"\t";
         }

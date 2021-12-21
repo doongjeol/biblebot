@@ -17,11 +17,17 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     // 목록
     if(msg == inputProof[9]){
         var list = read(filepathList,"prooflist.csv");
+        var list2 = read(filepathList,"dainmsg.csv");
         var help = "";
+        var help2 = "";
         for(var i=0 ; i<list.length ; i++){
             help+= list[i] + "\n";
         }
+        for(var i=0 ; i<list2.length ; i++){
+            help2+= list2[i] + "\n";
+        }
         replier.reply(help);
+        replier.reply(help2);
     }
 
     // 인증 체크

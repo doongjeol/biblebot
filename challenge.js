@@ -80,7 +80,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     try {
         // 특정 달의 인증 현황 보기
-        if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5]))) {
+        if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7) {
             var msgArr = msg.split("월");
             var month = msgArr[0].substring(1, msgArr[0].length);
             var printData = printInfo(sender, month);
@@ -98,7 +98,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // 특정 날짜 인증
-        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9]))) {
+        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && msg.length <10) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
@@ -114,7 +114,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // 특정 날짜 인증 취소
-        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11]))) {
+        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && msg.length <10) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
@@ -246,7 +246,7 @@ function checkProof(month, day, sender, replier){
 
     // 오늘 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
-        for(var col = 0 ; col <userData[0].length ; col++) {
+        for(var col = 0 ; col <7 ; col++) {
             // replier.reply(userData[row][col]); //debug
             if(row == indexR && col == indexC && flag){
                 userData[row][col] = "✅";
@@ -290,7 +290,7 @@ function cancelProof(month, day,sender, replier){
 
     // 오늘 날짜 인증 취소하기
     for(var row=0 ; row<userData.length ; row++){
-        for(var col = 0 ; col <userData[0].length ; col++) {
+        for(var col = 0 ; col <7 ; col++) {
             if(row == indexR && col == indexC && flag){
                 userData[row][col] = calendarEmoji[row][col];
             }

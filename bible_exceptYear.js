@@ -101,7 +101,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     // 날짜 성경
     try {
-        if (msg.includes("월") && msg.includes("일") && msg.includes("성경")) {
+        if (msg.includes("월") && msg.includes("일") && msg.includes("성경")&& msg.length <9) {
             var monthIndex = msg.indexOf('월');
             var dateIndex = msg.indexOf('일');
             var month = msg.substring(0, monthIndex);

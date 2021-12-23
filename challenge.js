@@ -65,13 +65,15 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     var viewDayFlag = false;
 
     if(msg=="#월조회" || msg == "#월ㅈㅎ"){
-        replier.reply("'#N월 ㅈㅎ'로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
+        replier.reply("'#N월 ㅈㅎ'으로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
     } else if(msg == "#월일인증" || msg == "#월일ㅇㅈ"){
-        replier.reply("'#N월 N일 ㅇㅈ'로 입력해주세요.\n" +"  예시 : #12월 25일 ㅇㅈ");
+        replier.reply("'#N월 N일 ㅇㅈ'으로 입력해주세요.\n" +"  예시 : #12월 25일 ㅇㅈ");
     } else if(msg == "#월일취소" || msg == "#월일ㅊㅅ"){
-        replier.reply("'#N월 N일 ㅊㅅ'로 입력해주세요.\n" + "  예시 : #12월 25일 ㅊㅅ");
+        replier.reply("'#N월 N일 ㅊㅅ'으로 입력해주세요.\n" + "  예시 : #12월 25일 ㅊㅅ");
     } else if(msg == "#월일조회" || msg == "#월일ㅈㅎ"){
-        replier.reply("'#N월 ㅈㅎ'로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
+        replier.reply("'#N월 ㅈㅎ'으로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
+    } else if(msg == "#월일-일인증" || msg == "#월일-일ㅇㅈ"){
+              replier.reply("'#N월 N-N일 ㅇㅈ'으로 입력해주세요.\n"+"예시 : #12월 1-25일 ㅇㅈ");
     } else if(msg.includes("#")&&msg.includes("월")&&!msg.includes("일")){
         viewMonthFlag = true;
     } else if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")) {
@@ -98,35 +100,99 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // 특정 날짜 인증
-        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && msg.length <10) {
+        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && !msg.includes("-") && msg.length <10) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
             var day = msgArr2[0].substring(0, msgArr2[0].length);
             var data = checkProof(month, day, sender, replier); // 달력
-            var filename = senderFileName(sender, month);
-            save(filepathSave + sender + "/", filename, data);
 
-            var printData = printInfo(sender, month);
-            replier.reply(sender + outputSuffix[0]);
-            replier.reply(month + "월\n" + printData);
-            sendCongratMsg(month, sender, replier)
+            if(data === ""|| !month || !day ){
+                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+            } else {
+                var filename = senderFileName(sender, month);
+                save(filepathSave + sender + "/", filename, data);
+
+                var printData = printInfo(sender, month);
+                replier.reply(sender + outputSuffix[0]);
+                replier.reply(month + "월\n" + printData);
+                sendCongratMsg(month, sender, replier)
+            }
         }
 
         // 특정 날짜 인증 취소
-        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && msg.length <10) {
+        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && !msg.includes("-") && msg.length <10) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
             var day = msgArr2[0].substring(0, msgArr2[0].length);
             var data = cancelProof(month, day, sender, replier); // 달력
-            var filename = senderFileName(sender, month);
-            save(filepathSave + sender + "/", filename, data);
 
-            var printData = printInfo(sender, month);
-            replier.reply(sender + outputSuffix[1]);
-            replier.reply(month + "월\n" + printData);
+            if(data === "" || !month || !day){
+                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+            } else {
+                var filename = senderFileName(sender, month);
+                save(filepathSave + sender + "/", filename, data);
+                var printData = printInfo(sender, month);
+                replier.reply(sender + outputSuffix[1]);
+                replier.reply(month + "월\n" + printData);
+            }
         }
+
+        // 연속된 날짜 인증
+        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && msg.includes("-") && msg.length <13) {
+            var msgArr1 = msg.split("월");
+            var month = msgArr1[0].substring(1, msgArr1[0].length);
+            var msgArr2 = msgArr1[1].split("일");
+            var msgArr3 = msgArr2[0].split("-");
+            var firstday = msgArr3[0];
+            var lastday = msgArr3[1];
+
+            if(!month || !firstday || !lastday || firstday > lastday){
+                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                return;
+            }
+
+            var data = checkMultiProof(month, firstday, lastday, sender, replier);
+
+            if(data === ""){
+                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+            } else {
+                var filename = senderFileName(sender, month);
+                save(filepathSave + sender + "/", filename, data);
+                var printData = printInfo(sender, month);
+                replier.reply(sender + outputSuffix[0]);
+                replier.reply(month + "월\n" + printData);
+            }
+        }
+
+        // 연속된 날짜 취소
+        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && msg.includes("-")  && msg.length <13) {
+            var msgArr1 = msg.split("월");
+            var month = msgArr1[0].substring(1, msgArr1[0].length);
+            var msgArr2 = msgArr1[1].split("일");
+            var msgArr3 = msgArr2[0].split("-");
+            var firstday = msgArr3[0];
+            var lastday = msgArr3[1];
+
+            if(!month || !firstday || !lastday || firstday > lastday){
+                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                return;
+            }
+
+            var data = cancelMultiProof(month, firstday, lastday, sender, replier);
+            if(data === ""){
+                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+            } else {
+                var filename = senderFileName(sender, month);
+                save(filepathSave + sender + "/", filename, data);
+                var printData = printInfo(sender, month);
+                replier.reply(sender + outputSuffix[1]);
+                replier.reply(month + "월\n" + printData);
+            }
+        }
+
+
     } catch (e) {
         replier.reply("입력하신 키워드를 확인해주세요.");
 
@@ -220,16 +286,6 @@ function checkProof(month, day, sender, replier){
     var filename = senderFileName(sender,month);
     var userData ;
 
-    try{
-        userData = read(filepathSave+sender+"/", filename);
-    } catch (error) {
-        replier.reply(error);
-    }
-    if(userData == null){
-        userData = calendarEmoji;
-        replier.reply(month+"월 "+"첫번째 인증이시네요 !🥳");
-    }
-
     var fullCalendar = "";
     var indexR = 0;
     var indexC = 0;
@@ -242,6 +298,18 @@ function checkProof(month, day, sender, replier){
 
     if(indexR == 0 && indexC == 0){
         flag = false;
+        return fullCalendar;
+    }
+
+    try{
+        userData = read(filepathSave+sender+"/", filename);
+    } catch (error) {
+        replier.reply(error);
+    }
+
+    if(userData == null){
+        userData = calendarEmoji;
+        replier.reply(month+"월 첫번째 인증이시네요 !🥳");
     }
 
     // 오늘 날짜 읽기 표시하기
@@ -264,16 +332,6 @@ function cancelProof(month, day,sender, replier){
     var filename = senderFileName(sender,month);
     var userData ;
 
-    try{
-        userData = read(filepathSave+sender+"/", filename);
-        // replier.reply(userData[0][0]); //debug
-    } catch (error) {
-        replier.reply(error);
-    }
-    if(userData == null){
-        userData = calendarEmoji;
-    }
-
     var fullCalendar = "";
     var indexR = 0;
     var indexC = 0;
@@ -286,6 +344,17 @@ function cancelProof(month, day,sender, replier){
 
     if(indexR == 0 && indexC == 0){
         flag = false;
+        return fullCalendar;
+    }
+
+    try{
+        userData = read(filepathSave+sender+"/", filename);
+    } catch (error) {
+        replier.reply(error);
+    }
+
+    if(userData == null){
+        userData = calendarEmoji;
     }
 
     // 오늘 날짜 인증 취소하기
@@ -293,6 +362,133 @@ function cancelProof(month, day,sender, replier){
         for(var col = 0 ; col <7 ; col++) {
             if(row == indexR && col == indexC && flag){
                 userData[row][col] = calendarEmoji[row][col];
+            }
+            fullCalendar += userData[row][col]+"\t";
+        }
+        fullCalendar+="\n";
+    }
+    return fullCalendar;
+}
+
+function checkMultiProof(month, firstday, lastday, sender, replier){
+    var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
+    var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
+    var filename = senderFileName(sender,month);
+    var userData ;
+
+    var fullCalendar = "";
+    var indexR = 0;
+    var indexC = 0;
+
+    // 날짜 인덱스 가져오기
+    var indexFrist = getTodayIndex(calendarRaw, firstday);
+    var indexLast = getTodayIndex(calendarRaw,lastday);
+    indexFirstR = indexFrist[0];
+    indexFirstC = indexFrist[1];
+    indexLastR = indexLast[0];
+    indexLastC = indexLast[1];
+
+    var flag = true;
+
+    if(indexFirstR == 0 && indexFirstC == 0){
+        flag = false;
+        return fullCalendar;
+    }
+
+    if(indexLastR == 0 && indexLastC == 0){
+        flag = false;
+        return fullCalendar;
+    }
+
+    try{
+        userData = read(filepathSave+sender+"/", filename);
+    } catch (error) {
+        replier.reply(error);
+    }
+
+    if(userData == null){
+        userData = calendarEmoji;
+        replier.reply(month+"월 첫번째 인증이시네요 !🥳");
+    }
+
+    // 입력한 다중 날짜 읽기 표시하기
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <7 ; col++) {
+            if(indexFirstR == indexLastR){
+                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC))  {
+                    userData[row][col] = "✅";
+                }
+            } else {
+                if(row == indexFirstR && col >= indexFirstC){
+                    userData[row][col] = "✅";
+                } else if (row == indexLastR && col <= indexLastC){
+                    userData[row][col] = "✅";
+                } else if(row > indexFirstR && row < indexLastR){
+                    userData[row][col] = "✅";
+                }
+            }
+            fullCalendar += userData[row][col]+"\t";
+        }
+        fullCalendar+="\n";
+    }
+    return fullCalendar;
+}
+
+function cancelMultiProof(month, firstday, lastday, sender, replier){
+    var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
+    var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
+    var filename = senderFileName(sender,month);
+    var userData ;
+
+    var fullCalendar = "";
+    var indexR = 0;
+    var indexC = 0;
+
+    // 날짜 인덱스 가져오기
+    var indexFrist = getTodayIndex(calendarRaw, firstday);
+    var indexLast = getTodayIndex(calendarRaw,lastday);
+    indexFirstR = indexFrist[0];
+    indexFirstC = indexFrist[1];
+    indexLastR = indexLast[0];
+    indexLastC = indexLast[1];
+
+    var flag = true;
+
+    if(indexFirstR == 0 && indexFirstC == 0){
+        flag = false;
+        return fullCalendar;
+    }
+
+    if(indexLastR == 0 && indexLastC == 0){
+        flag = false;
+        return fullCalendar;
+    }
+
+    try{
+        userData = read(filepathSave+sender+"/", filename);
+    } catch (error) {
+        replier.reply(error);
+    }
+
+    if(userData == null){
+        userData = calendarEmoji;
+    }
+
+    // 오늘 날짜 인증 취소하기
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <7 ; col++) {
+            if(indexFirstR == indexLastR){
+                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC))  {
+                    userData[row][col] = calendarEmoji[row][col];
+                }
+            } else {
+                if(row == indexFirstR && col >= indexFirstC){
+                    userData[row][col] = calendarEmoji[row][col];
+                } else if (row == indexLastR && col <= indexLastC){
+                    userData[row][col] = calendarEmoji[row][col];
+                } else if(row > indexFirstR && row < indexLastR){
+                    userData[row][col] = calendarEmoji[row][col];
+                }
             }
             fullCalendar += userData[row][col]+"\t";
         }
@@ -442,4 +638,17 @@ function getDay(date) {
     }
 
     return day;
+}
+
+function isExist(calendarRaw, day){
+    var index = getTodayIndex(calendarRaw, day);
+    indexR = index[0];
+    indexC = index[1];
+
+    if(indexR == 0 && indexC == 0){
+        return false;
+    }
+
+    return true;
+
 }

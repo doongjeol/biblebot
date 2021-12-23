@@ -72,7 +72,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         replier.reply("'#N월 N일 ㅊㅅ'으로 입력해주세요.\n" + "  예시 : #12월 25일 ㅊㅅ");
     } else if(msg == "#월일조회" || msg == "#월일ㅈㅎ"){
         replier.reply("'#N월 ㅈㅎ'으로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
-    } else if(msg == "#월일-일인증" || msg == "#월일-일ㅇㅈ"){
+    } else if(msg == "#월-일인증" || msg == "#월-일ㅇㅈ"){
               replier.reply("'#N월 N-N일 ㅇㅈ'으로 입력해주세요.\n"+"예시 : #12월 1-25일 ㅇㅈ");
     } else if(msg.includes("#")&&msg.includes("월")&&!msg.includes("일")){
         viewMonthFlag = true;

@@ -3,6 +3,7 @@ const scriptName = "challenge.js";
 var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();    //절대경로
 var filepathCallendarRaw = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_raw/";
 var filepathCallendarEmoji = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_emoji/";
+var filepathEphWeekList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/ephlist/";
 var filepathSave = "/storage/emulated/0/KakaoTalkDownload/challengeBot/userData/";
 var filepathList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/list/"
 var rawSuffix = "월_raw.csv";
@@ -640,15 +641,71 @@ function getDay(date) {
     return day;
 }
 
-function isExist(calendarRaw, day){
-    var index = getTodayIndex(calendarRaw, day);
-    indexR = index[0];
-    indexC = index[1];
+function getWeekIndex(calendarRaw, day){
+    var indexR = 0;
+    for(var row=0 ; row<calendar.length ; row++){
+        for(var col = 0 ; col <calendar[0].length ; col++) {
+            if(calendar[row][col] == day){
+                indexR = row;
+                break;
+            }
+        }
+    }
+    return indexR;
+}
 
-    if(indexR == 0 && indexC == 0){
-        return false;
+function ephWeekProof(month, day, sender, replier){
+    var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
+    var ephWeekList = read(filepathEphWeekList, "ephlist.csv");
+
+    var fullEphWeekList = "";
+    // 이번주 행 인덱스 가져오기
+    var indexR = getWeekIndex(calendarRaw, day);
+    var flag = true;
+
+    if(indexR == 0){
+        flag = false;
+        return 0;
     }
 
-    return true;
+    var userIndex = 0;
+    // 인증한 사람 인덱스 가져오기
+    for(var row=0 ; row<ephWeekList.length ; row++){
+        for(var col = 0 ; col <ephWeekList[0].length ; col++) {
+            if(sender == ephWeekList[row][0]){
+                userIndex = row;
+                break;
+            }
+        }
+    }
 
+    if((month == 1 && indexR == 6)
+    || (month == 2 && indexR == 5)
+    || (month == 3 && indexR == 5)
+    || (month == 5 && indexR == 5)
+    || (month == 6 && indexR == 5)
+    || (month == 7 && indexR == 6)
+    || (month == 8 && indexR == 5)
+    || (month == 9 && indexR == 5)
+    || (month == 10 && indexR == 6
+    || (month == 11 && indexR == 5))) {
+        month++;
+        indexR = 1;
+    }
+
+
+
+
+    // 인증한 곳 ++ 해주기
+    for(var row=0 ; row<ephWeekList.length ; row++){
+        for(var col = 0 ; col <ephWeekList[0].length ; col++) {
+            if(month+"월"+userIndex+"주차" == ephWeekList[0][col]){
+                ephWeekList[userIndex][col] += 1;
+            }
+            fullEphWeekList += ephWeekList[row][col]+"\t";
+        }
+        fullEphWeekList+="\n";
+    }
+
+    return fullEphWeekList;
 }

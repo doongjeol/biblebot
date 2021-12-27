@@ -81,6 +81,18 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         viewDayFlag = true;
     }
 
+    // debug
+    if(msg === "d"){
+        var date = new Date();
+        var month = 5;
+        var day = 31;
+        ephWeekProof(month, day, sender, replier);
+        var month = 7;
+        ephWeekProof(month, day, sender, replier);
+        var month = 10;
+        ephWeekProof(month, day, sender, replier);
+    }
+
     try {
         // 특정 달의 인증 현황 보기
         if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7) {
@@ -194,8 +206,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
 
+
+
     } catch (e) {
         replier.reply("입력하신 키워드를 확인해주세요.");
+        replier.reply(e);
 
     }
 
@@ -316,9 +331,9 @@ function checkProof(month, day, sender, replier){
     // 오늘 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
-            // replier.reply(userData[row][col]); //debug
-            if(row == indexR && col == indexC && flag){
+            if(row == indexR && col == indexC && flag && userData[row][col] != "✅"){
                 userData[row][col] = "✅";
+                ephWeekProof(month, day, sender, replier, true); // 주 인증
             }
             fullCalendar += userData[row][col]+"\t";
         }
@@ -361,8 +376,9 @@ function cancelProof(month, day,sender, replier){
     // 오늘 날짜 인증 취소하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
-            if(row == indexR && col == indexC && flag){
+            if(row == indexR && col == indexC && flag &&  userData[row][col] != calendarEmoji[row][col]){
                 userData[row][col] = calendarEmoji[row][col];
+                ephWeekProof(month, day, sender, replier, false); // 주 인증
             }
             fullCalendar += userData[row][col]+"\t";
         }
@@ -412,14 +428,27 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
         replier.reply(month+"월 첫번째 인증이시네요 !🥳");
     }
 
+    // 주차별 인증을 위한 데이터
+    var weekProofFlag = true;
+    var todayMonth = getMonth(new Date());
+    var today = getDay(new Date());
+
     // 입력한 다중 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(indexFirstR == indexLastR){
                 if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC))  {
                     userData[row][col] = "✅";
+                    if(weekProofFlag){
+                        ephWeekProof(todayMonth, today, sender, replier, true); // 주 인증
+                        weekProofFlag = false;
+                    }
                 }
             } else {
+                if(weekProofFlag){
+                    ephWeekProof(todayMonth, today, sender, replier, true); // 주 인증
+                    weekProofFlag = false;
+                }
                 if(row == indexFirstR && col >= indexFirstC){
                     userData[row][col] = "✅";
                 } else if (row == indexLastR && col <= indexLastC){
@@ -432,6 +461,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
         }
         fullCalendar+="\n";
     }
+
     return fullCalendar;
 }
 
@@ -475,14 +505,28 @@ function cancelMultiProof(month, firstday, lastday, sender, replier){
         userData = calendarEmoji;
     }
 
-    // 오늘 날짜 인증 취소하기
+    // 주차별 인증을 위한 데이터
+    var weekProofFlag = true;
+    var todayMonth = getMonth(new Date());
+    var today = getDay(new Date());
+
+
+    // 입력한 다중 날짜 읽기 취소하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(indexFirstR == indexLastR){
                 if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC))  {
                     userData[row][col] = calendarEmoji[row][col];
+                    if(weekProofFlag){
+                        ephWeekProof(todayMonth, today, sender, replier, false); // 주 인증 취소
+                        weekProofFlag = false;
+                    }
                 }
             } else {
+                if(weekProofFlag){
+                    ephWeekProof(todayMonth, today, sender, replier, false); // 주 인증
+                    weekProofFlag = false;
+                }
                 if(row == indexFirstR && col >= indexFirstC){
                     userData[row][col] = calendarEmoji[row][col];
                 } else if (row == indexLastR && col <= indexLastC){
@@ -643,9 +687,9 @@ function getDay(date) {
 
 function getWeekIndex(calendarRaw, day){
     var indexR = 0;
-    for(var row=0 ; row<calendar.length ; row++){
-        for(var col = 0 ; col <calendar[0].length ; col++) {
-            if(calendar[row][col] == day){
+    for(var row=0 ; row<calendarRaw.length ; row++){
+        for(var col = 0 ; col <calendarRaw[0].length ; col++) {
+            if(calendarRaw[row][col] == day){
                 indexR = row;
                 break;
             }
@@ -654,18 +698,19 @@ function getWeekIndex(calendarRaw, day){
     return indexR;
 }
 
-function ephWeekProof(month, day, sender, replier){
+function ephWeekProof(month, day, sender, replier, pm){
     var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
-    var ephWeekList = read(filepathEphWeekList, "ephlist.csv");
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+    var ephUserCalendarRaw = read(filepathEphWeekList+"/"+sender+"/", month+rawSuffix);
 
     var fullEphWeekList = "";
-    // 이번주 행 인덱스 가져오기
+    // 이번주차 인덱스 가져오기
     var indexR = getWeekIndex(calendarRaw, day);
     var flag = true;
 
     if(indexR == 0){
         flag = false;
-        return 0;
+        return;
     }
 
     var userIndex = 0;
@@ -693,19 +738,64 @@ function ephWeekProof(month, day, sender, replier){
         indexR = 1;
     }
 
+    // 오늘 날짜 인덱스 가져오기
+    var index = getTodayIndex(calendarRaw, day);
+    indexTodayR = index[0];
+    indexTodayC = index[1];
 
+    var canProof = false;
+    var canCancel = false;
 
+    // 오늘 인증 여부 확인하기
+    // 0 : 인증 완료한 적 있음
+    // -1 : 취소한 적 있음
+    // 1~31 : 아무것도한 적 없음
+    for(var row = 0 ; row<ephUserCalendarRaw.length ; row ++){
+        for(var col = 0 ; col<ephUserCalendarRaw[0].length ; col ++){
+            if(ephUserCalendarRaw[indexTodayR][indexTodayC] != 0){
+                canProof = true;
+            } else if(ephUserCalendarRaw[indexTodayR][indexTodayC] != -1 ){
+                canCancel = true;
+            }
+        }
+    }
 
-    // 인증한 곳 ++ 해주기
+    // 인증한 곳 ++ 해주기 pm : plus minus 여부
+    for(var col = 1 ; col <ephWeekList[0].length ; col++) {
+        if(month+"월"+indexR+"주" == ephWeekList[0][col]){
+            if(pm && canProof){
+                ephWeekList[userIndex][col] = Number(ephWeekList[userIndex][col]) + 1;
+                ephUserCalendarRaw[indexTodayR][indexTodayC] = 0;
+                canProof = false;
+            }
+            else if (!pm && canCancel){
+                ephWeekList[userIndex][col] = Number(ephWeekList[userIndex][col]) - 1;
+                ephUserCalendarRaw[indexTodayR][indexTodayC] = -1;
+                canCancel = false;
+            }
+            break;
+        }
+    }
+
+    // 주차별 인증 결과 파일에 저장
     for(var row=0 ; row<ephWeekList.length ; row++){
         for(var col = 0 ; col <ephWeekList[0].length ; col++) {
-            if(month+"월"+userIndex+"주차" == ephWeekList[0][col]){
-                ephWeekList[userIndex][col] += 1;
-            }
             fullEphWeekList += ephWeekList[row][col]+"\t";
         }
         fullEphWeekList+="\n";
     }
 
-    return fullEphWeekList;
+    // 일별 인증 결과 파일에 저장
+     var ephUserCalendar = ""
+    for(var row=0 ; row<ephUserCalendarRaw.length ; row++){
+        for(var col = 0 ; col <ephUserCalendarRaw[0].length ; col++) {
+            ephUserCalendar += ephUserCalendarRaw[row][col]+"\t";
+        }
+        ephUserCalendar+="\n";
+    }
+
+    save(filepathEphWeekList+"/"+sender+"/", month+rawSuffix, ephUserCalendar);
+
+    save(filepathEphWeekList, "ephWeekProof.csv", fullEphWeekList);
+
 }

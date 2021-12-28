@@ -10,6 +10,7 @@ var rawSuffix = "월_raw.csv";
 var emojiSuffix = "월_emoji.csv";
 var inputProof = ["#ㅇㅈ", "#인증","#ㅊㅅ","#취소","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅇㅈ","인증","ㅊㅅ","취소"];
 var outputSuffix = ["님 인증완료👏","님 취소완료🙂","월 조회결과🤗"];
+var ephTotalUser = 15;
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
     // msg 공백제거
@@ -62,6 +63,26 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
+    if(msg.includes("주인증결과")){
+        var msgArr1 = msg.split("월");
+        var month = msgArr1[0].substring(0, msgArr1[0].length);
+        var msgArr2 = msgArr1[1].split("주");
+        var week = msgArr2[0];
+
+        replier.reply(printEphInfo(month, week));
+    }
+
+    if(msg == "주디버그"){
+        replier.reply(debugEphUserList());
+    }
+
+    // debug - test
+    if(msg == "d"){
+        ephWeekProof(12, 25, sender,replier,true);
+    }
+
+
+
     var viewMonthFlag = false;
     var viewDayFlag = false;
 
@@ -81,17 +102,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         viewDayFlag = true;
     }
 
-    // debug
-    if(msg === "d"){
-        var date = new Date();
-        var month = 5;
-        var day = 31;
-        ephWeekProof(month, day, sender, replier);
-        var month = 7;
-        ephWeekProof(month, day, sender, replier);
-        var month = 10;
-        ephWeekProof(month, day, sender, replier);
-    }
 
     try {
         // 특정 달의 인증 현황 보기
@@ -205,9 +215,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             }
         }
 
-
-
-
     } catch (e) {
         replier.reply("입력하신 키워드를 확인해주세요.");
         replier.reply(e);
@@ -296,6 +303,53 @@ function printInfo(sender, month) {
     return fullCalendar;
 }
 
+function printEphInfo(month, week){
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+    var weekCol = 0;
+
+    for(var col = 0 ; col < ephWeekList[0].length ; col++){
+        if(month+"월"+week+"주" == ephWeekList[0][col]){
+            weekCol = col;
+        }
+    }
+
+    var fullEphWeekList = "";
+    var noProofUserList = "";
+    var yesProofUserList = "";
+
+    if(weekCol == 0){
+        fullEphWeekList = "입력하신 월 또는 주를 확인를주세요.";
+    } else {
+        // 주차별 인증 결과 파일에 저장
+        for (var row = 1; row <= ephTotalUser; row++) {
+            if (Number(ephWeekList[row][weekCol]) > 0) {
+                yesProofUserList += ephWeekList[row][0] + "\n";
+            } else {
+                noProofUserList += ephWeekList[row][0] + "\n";
+            }
+        }
+
+        fullEphWeekList = "- 인증 퀘스트 완료한 사람 🥰 -\n" + yesProofUserList +
+            "\n- 인증 퀘스트 미완료한 사람 🥲 -\n" + noProofUserList;
+    }
+
+    return fullEphWeekList;
+}
+
+function debugEphUserList(){
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+
+    var debug = "";
+    for(var row = 0 ; row < ephWeekList.length ; row++){
+        for(var col = 0 ; col<ephWeekList[0].length ; col++){
+            debug += ephWeekList[row][col] +"\t";
+        }
+        debug += "\n";
+    }
+
+    return debug;
+}
+
 function checkProof(month, day, sender, replier){
     var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
     var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
@@ -331,7 +385,8 @@ function checkProof(month, day, sender, replier){
     // 오늘 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
-            if(row == indexR && col == indexC && flag && userData[row][col] != "✅"){
+            if(row == indexR && col == indexC && flag && userData[row][col] == "✅"){
+            } else if(row == indexR && col == indexC && flag){
                 userData[row][col] = "✅";
                 ephWeekProof(month, day, sender, replier, true); // 주 인증
             }
@@ -376,7 +431,8 @@ function cancelProof(month, day,sender, replier){
     // 오늘 날짜 인증 취소하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
-            if(row == indexR && col == indexC && flag &&  userData[row][col] != calendarEmoji[row][col]){
+            if(row == indexR && col == indexC && flag && (userData[row][col] == calendarEmoji[row][col])){
+            } else if(row == indexR && col == indexC && flag){
                 userData[row][col] = calendarEmoji[row][col];
                 ephWeekProof(month, day, sender, replier, false); // 주 인증
             }
@@ -394,8 +450,6 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
     var userData ;
 
     var fullCalendar = "";
-    var indexR = 0;
-    var indexC = 0;
 
     // 날짜 인덱스 가져오기
     var indexFrist = getTodayIndex(calendarRaw, firstday);
@@ -429,9 +483,33 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
     }
 
     // 주차별 인증을 위한 데이터
-    var weekProofFlag = true;
+    var weekProofFlag = false;
     var todayMonth = getMonth(new Date());
     var today = getDay(new Date());
+
+    // 동일 인증 여부 체크
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <7 ; col++) {
+            if(indexFirstR == indexLastR){
+                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "✅")  {
+                    weekProofFlag = true;
+                    break;
+                }
+            } else {
+                if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "✅"){
+                    weekProofFlag = true;
+                    break;
+                } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "✅"){
+                    weekProofFlag = true;
+                    break;
+                } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "✅"){
+                    weekProofFlag = true;
+                    break;
+                }
+            }
+        }
+    }
+
 
     // 입력한 다중 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
@@ -472,8 +550,6 @@ function cancelMultiProof(month, firstday, lastday, sender, replier){
     var userData ;
 
     var fullCalendar = "";
-    var indexR = 0;
-    var indexC = 0;
 
     // 날짜 인덱스 가져오기
     var indexFrist = getTodayIndex(calendarRaw, firstday);
@@ -506,10 +582,32 @@ function cancelMultiProof(month, firstday, lastday, sender, replier){
     }
 
     // 주차별 인증을 위한 데이터
-    var weekProofFlag = true;
+    var weekProofFlag = false;
     var todayMonth = getMonth(new Date());
     var today = getDay(new Date());
 
+    // 동일 인증 여부 체크
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <7 ; col++) {
+            if(indexFirstR == indexLastR){
+                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != calendarEmoji[row][col])  {
+                    weekProofFlag = true;
+                    break;
+                }
+            } else {
+                if(row == indexFirstR && col >= indexFirstC && userData[row][col] != calendarEmoji[row][col]){
+                    weekProofFlag = true;
+                    break;
+                } else if (row == indexLastR && col <= indexLastC && userData[row][col] != calendarEmoji[row][col]){
+                    weekProofFlag = true;
+                    break;
+                } else if(row > indexFirstR && row < indexLastR && userData[row][col] != calendarEmoji[row][col]){
+                    weekProofFlag = true;
+                    break;
+                }
+            }
+        }
+    }
 
     // 입력한 다중 날짜 읽기 취소하기
     for(var row=0 ; row<userData.length ; row++){
@@ -611,6 +709,18 @@ function isCheckAll(month,sender,replier) {
     return isAll;
 }
 
+function isEphUser(sender){
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+
+    for(var i=0 ; i<ephWeekList.length ; i++){
+        if(sender == ephWeekList[i][0]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function sendCongratMsg(month, sender, replier) {
     var isAll = isCheckAll(month,sender,replier);
     if(isAll){
@@ -699,103 +809,99 @@ function getWeekIndex(calendarRaw, day){
 }
 
 function ephWeekProof(month, day, sender, replier, pm){
-    var calendarRaw = read(filepathCallendarRaw, month+rawSuffix);
-    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
-    var ephUserCalendarRaw = read(filepathEphWeekList+"/"+sender+"/", month+rawSuffix);
+    if(isEphUser(sender)) {
+        var calendarRaw = read(filepathCallendarRaw, month + rawSuffix);
+        var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+        var ephUserCalendarRaw = read(filepathEphWeekList + "/" + sender + "/", month + rawSuffix);
 
-    var fullEphWeekList = "";
-    // 이번주차 인덱스 가져오기
-    var indexR = getWeekIndex(calendarRaw, day);
-    var flag = true;
+        var fullEphWeekList = "";
+        // 이번주차 인덱스 가져오기
+        var indexR = getWeekIndex(calendarRaw, day);
 
-    if(indexR == 0){
-        flag = false;
-        return;
-    }
+        var userIndex = 0;
+        // 인증한 사람 인덱스 가져오기
+        for (var row = 0; row < ephWeekList.length; row++) {
+            for (var col = 0; col < ephWeekList[0].length; col++) {
+                if (sender == ephWeekList[row][0]) {
+                    userIndex = row;
+                    break;
+                }
+            }
+        }
 
-    var userIndex = 0;
-    // 인증한 사람 인덱스 가져오기
-    for(var row=0 ; row<ephWeekList.length ; row++){
-        for(var col = 0 ; col <ephWeekList[0].length ; col++) {
-            if(sender == ephWeekList[row][0]){
-                userIndex = row;
+        if ((month == 1 && indexR == 6)
+            || (month == 2 && indexR == 5)
+            || (month == 3 && indexR == 5)
+            || (month == 5 && indexR == 5)
+            || (month == 6 && indexR == 5)
+            || (month == 7 && indexR == 6)
+            || (month == 8 && indexR == 5)
+            || (month == 9 && indexR == 5)
+            || (month == 10 && indexR == 6
+                || (month == 11 && indexR == 5))) {
+            month++;
+            indexR = 1;
+        }
+
+        // 오늘 날짜 인덱스 가져오기
+        var index = getTodayIndex(calendarRaw, day);
+        var indexTodayR = index[0];
+        var indexTodayC = index[1];
+
+        var canProof = false;
+        var canCancel = false;
+
+        // 오늘 인증 여부 확인하기
+        // 인증 : 인증 완료한 적 있음
+        // 취소 : 취소한 적 있음
+        // 1~31 : 아무것도한 적 없음
+        for (var row = 0; row < ephUserCalendarRaw.length; row++) {
+            for (var col = 0; col < ephUserCalendarRaw[0].length; col++) {
+                if (ephUserCalendarRaw[indexTodayR][indexTodayC] != "인증") {
+                    canProof = true;
+                } else if (Number(ephUserCalendarRaw[indexTodayR][indexTodayC]) != "취소") {
+                    canCancel = true;
+                }
+            }
+        }
+
+        // 인증한 곳 ++ 해주기 pm : plus minus 여부
+        for (var col = 1; col < ephWeekList[0].length; col++) {
+            if (month + "월" + indexR + "주" == ephWeekList[0][col]) {
+                if (pm && canProof) {
+                    ephWeekList[userIndex][col] = Number(ephWeekList[userIndex][col]) + 1;
+                    ephUserCalendarRaw[indexTodayR][indexTodayC] = "인증";
+                    canProof = false;
+                } else if (!pm && canCancel) {
+                    ephWeekList[userIndex][col] = Number(ephWeekList[userIndex][col]) - 1;
+                    ephUserCalendarRaw[indexTodayR][indexTodayC] = "취소";
+                    if(Number(ephWeekList[userIndex][col]) < 0){
+                        ephUserCalendarRaw[indexTodayR][indexTodayC] = 0;
+                    }
+                    canCancel = false;
+                }
                 break;
             }
         }
-    }
 
-    if((month == 1 && indexR == 6)
-    || (month == 2 && indexR == 5)
-    || (month == 3 && indexR == 5)
-    || (month == 5 && indexR == 5)
-    || (month == 6 && indexR == 5)
-    || (month == 7 && indexR == 6)
-    || (month == 8 && indexR == 5)
-    || (month == 9 && indexR == 5)
-    || (month == 10 && indexR == 6
-    || (month == 11 && indexR == 5))) {
-        month++;
-        indexR = 1;
-    }
-
-    // 오늘 날짜 인덱스 가져오기
-    var index = getTodayIndex(calendarRaw, day);
-    indexTodayR = index[0];
-    indexTodayC = index[1];
-
-    var canProof = false;
-    var canCancel = false;
-
-    // 오늘 인증 여부 확인하기
-    // 0 : 인증 완료한 적 있음
-    // -1 : 취소한 적 있음
-    // 1~31 : 아무것도한 적 없음
-    for(var row = 0 ; row<ephUserCalendarRaw.length ; row ++){
-        for(var col = 0 ; col<ephUserCalendarRaw[0].length ; col ++){
-            if(ephUserCalendarRaw[indexTodayR][indexTodayC] != 0){
-                canProof = true;
-            } else if(ephUserCalendarRaw[indexTodayR][indexTodayC] != -1 ){
-                canCancel = true;
+        // 주차별 인증 결과 파일에 저장
+        for (var row = 0; row < ephWeekList.length; row++) {
+            for (var col = 0; col < ephWeekList[0].length; col++) {
+                fullEphWeekList += ephWeekList[row][col] + "\t";
             }
+            fullEphWeekList += "\n";
         }
-    }
 
-    // 인증한 곳 ++ 해주기 pm : plus minus 여부
-    for(var col = 1 ; col <ephWeekList[0].length ; col++) {
-        if(month+"월"+indexR+"주" == ephWeekList[0][col]){
-            if(pm && canProof){
-                ephWeekList[userIndex][col] = Number(ephWeekList[userIndex][col]) + 1;
-                ephUserCalendarRaw[indexTodayR][indexTodayC] = 0;
-                canProof = false;
+        // 일별 인증 결과 파일에 저장
+        var ephUserCalendar = ""
+        for (var row = 0; row < ephUserCalendarRaw.length; row++) {
+            for (var col = 0; col < ephUserCalendarRaw[0].length; col++) {
+                ephUserCalendar += ephUserCalendarRaw[row][col] + "\t";
             }
-            else if (!pm && canCancel){
-                ephWeekList[userIndex][col] = Number(ephWeekList[userIndex][col]) - 1;
-                ephUserCalendarRaw[indexTodayR][indexTodayC] = -1;
-                canCancel = false;
-            }
-            break;
+            ephUserCalendar += "\n";
         }
+
+        save(filepathEphWeekList + "/" + sender + "/", month + rawSuffix, ephUserCalendar);
+        save(filepathEphWeekList, "ephWeekProof.csv", fullEphWeekList);
     }
-
-    // 주차별 인증 결과 파일에 저장
-    for(var row=0 ; row<ephWeekList.length ; row++){
-        for(var col = 0 ; col <ephWeekList[0].length ; col++) {
-            fullEphWeekList += ephWeekList[row][col]+"\t";
-        }
-        fullEphWeekList+="\n";
-    }
-
-    // 일별 인증 결과 파일에 저장
-     var ephUserCalendar = ""
-    for(var row=0 ; row<ephUserCalendarRaw.length ; row++){
-        for(var col = 0 ; col <ephUserCalendarRaw[0].length ; col++) {
-            ephUserCalendar += ephUserCalendarRaw[row][col]+"\t";
-        }
-        ephUserCalendar+="\n";
-    }
-
-    save(filepathEphWeekList+"/"+sender+"/", month+rawSuffix, ephUserCalendar);
-
-    save(filepathEphWeekList, "ephWeekProof.csv", fullEphWeekList);
-
 }

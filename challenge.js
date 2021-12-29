@@ -11,11 +11,12 @@ var emojiSuffix = "월_emoji.csv";
 var inputProof = ["#ㅊㅋ", "#체크","#ㅎㅈ","#해제","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅊㅋ","체크","ㅎㅈ","해제"];
 var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗"];
 var ephTotalUser = 15;
+var roomName = "";
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
     // msg 공백제거
     msg = trimSpace(msg);
-
+    roomName = room;
     // 목록
     if(msg == inputProof[9]){
         var list = read(filepathList,"prooflist.csv");
@@ -63,6 +64,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
+    // N월 N주 인증결과
     if(msg.includes("주인증결과")){
         var msgArr1 = msg.split("월");
         var month = msgArr1[0].substring(0, msgArr1[0].length);
@@ -78,11 +80,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     if(msg == "딘디버그"){
         replier.reply(debugEphUserMultiList());
-    }
-
-    //debug
-    if(room == "김다인" && msg == "호오우"){
-        replier.reply("이게 되네");
     }
 
 
@@ -721,6 +718,14 @@ function isEphUser(sender){
         if(sender == ephWeekList[i][0]) {
             return true;
         }
+    }
+
+    return false;
+}
+
+function isEphRoom (room) {
+    if(room = "에바다"){
+        return true;
     }
 
     return false;

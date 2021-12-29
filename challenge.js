@@ -80,6 +80,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         replier.reply(debugEphUserMultiList());
     }
 
+    //debug
+    if(room == "김다인" && msg == "호오우"){
+        replier.reply("이게 되네");
+    }
+
 
     var viewMonthFlag = false;
     var viewDayFlag = false;

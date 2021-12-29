@@ -8,8 +8,8 @@ var filepathSave = "/storage/emulated/0/KakaoTalkDownload/challengeBot/userData/
 var filepathList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/list/"
 var rawSuffix = "월_raw.csv";
 var emojiSuffix = "월_emoji.csv";
-var inputProof = ["#ㅇㅈ", "#인증","#ㅊㅅ","#취소","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅇㅈ","인증","ㅊㅅ","취소"];
-var outputSuffix = ["님 인증완료👏","님 취소완료🙂","월 조회결과🤗"];
+var inputProof = ["#ㅊㅋ", "#체크","#ㅎㅈ","#해제","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅊㅋ","체크","ㅎㅈ","해제"];
+var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗"];
 var ephTotalUser = 15;
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
@@ -32,7 +32,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         replier.reply(help2);
     }
 
-    // 인증 체크
+    // 체크
     if(msg == inputProof[0] || msg == inputProof[1]){
         var date = new Date();
         var month = getMonth(date);
@@ -48,7 +48,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
-    // 인증 취소
+    // 해제
     if(msg ==  inputProof[2] || msg == inputProof[3]){
         var date = new Date();
         var month = getMonth(date);
@@ -86,14 +86,14 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     if(msg=="#월조회" || msg == "#월ㅈㅎ"){
         replier.reply("'#N월 ㅈㅎ'으로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
-    } else if(msg == "#월일인증" || msg == "#월일ㅇㅈ"){
-        replier.reply("'#N월 N일 ㅇㅈ'으로 입력해주세요.\n" +"  예시 : #12월 25일 ㅇㅈ");
-    } else if(msg == "#월일취소" || msg == "#월일ㅊㅅ"){
-        replier.reply("'#N월 N일 ㅊㅅ'으로 입력해주세요.\n" + "  예시 : #12월 25일 ㅊㅅ");
+    } else if(msg == "#월일체크" || msg == "#월일ㅊㅋ"){
+        replier.reply("'#N월 N일 ㅊㅋ'으로 입력해주세요.\n" +"  예시 : #12월 25일 ㅊㅋ");
+    } else if(msg == "#월일해제" || msg == "#월일ㅎㅈ"){
+        replier.reply("'#N월 N일 ㅎㅈ'으로 입력해주세요.\n" + "  예시 : #12월 25일 ㅎㅈ");
     } else if(msg == "#월일조회" || msg == "#월일ㅈㅎ"){
         replier.reply("'#N월 ㅈㅎ'으로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
-    } else if(msg == "#월-일인증" || msg == "#월-일ㅇㅈ"){
-              replier.reply("'#N월 N-N일 ㅇㅈ'으로 입력해주세요.\n"+"예시 : #12월 1-25일 ㅇㅈ");
+    } else if(msg == "#월-일체크" || msg == "#월-일ㅊㅋ"){
+              replier.reply("'#N월 N-N일 ㅊㅋ'으로 입력해주세요.\n"+"예시 : #12월 1-25일 ㅊㅋ");
     } else if(msg.includes("#")&&msg.includes("월")&&!msg.includes("일")){
         viewMonthFlag = true;
     } else if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")) {
@@ -101,7 +101,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
 
     try {
-        // 특정 달의 인증 현황 보기
+        // 특정 달의 체크 현황 보기
         if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7) {
             var msgArr = msg.split("월");
             var month = msgArr[0].substring(1, msgArr[0].length);
@@ -110,7 +110,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             replier.reply(month + "월\n" + printData);
         }
 
-        // 이번달의 인증 현황 보기
+        // 이번달의 체크 현황 보기
         if (msg == inputProof[6] || msg == inputProof[7]) {
             var date = new Date();
             var month = getMonth(date);
@@ -119,7 +119,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             replier.reply(month + "월\n" + printData);
         }
 
-        // 특정 날짜 인증
+        // 특정 날짜 체크
         if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && !msg.includes("-") && msg.length <10) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
@@ -140,7 +140,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             }
         }
 
-        // 특정 날짜 인증 취소
+        // 특정 날짜 체크 해제
         if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && !msg.includes("-") && msg.length <10) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
@@ -159,7 +159,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             }
         }
 
-        // 연속된 날짜 인증
+        // 연속된 날짜 체크
         if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && msg.includes("-") && msg.length <13) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
@@ -186,7 +186,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             }
         }
 
-        // 연속된 날짜 취소
+        // 연속된 날짜 체크해제
         if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && msg.includes("-")  && msg.length <13) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
@@ -402,7 +402,7 @@ function checkProof(month, day, sender, replier){
 
     if(userData == null){
         userData = calendarEmoji;
-        replier.reply(month+"월 첫번째 인증이시네요 !🥳");
+        replier.reply(month+"월 첫번째 체크시네요 !🥳");
     }
 
     var count = 0;
@@ -460,7 +460,7 @@ function cancelProof(month, day,sender, replier){
     var count = 0;
     var todayMonth = getMonth(new Date());
     var today = getDay(new Date());
-    // 오늘 날짜 인증 취소하기
+    // 오늘 날짜 체크 해제하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(row == indexR && col == indexC && flag && userData[row][col] != calendarEmoji[row][col]){
@@ -514,7 +514,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
 
     if(userData == null){
         userData = calendarEmoji;
-        replier.reply(month+"월 첫번째 인증이시네요 !🥳");
+        replier.reply(month+"월 첫번째 체크시네요 !🥳");
     }
 
     var count = 0; // 주차별 인증을 위한 횟수 카운트
@@ -603,7 +603,7 @@ function cancelMultiProof(month, firstday, lastday, sender, replier){
     var today = getDay(new Date());
     var checkWeek = false;
 
-    // 입력한 다중 날짜 읽기 취소하기
+    // 입력한 다중 날짜 읽기 해제하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(indexFirstR == indexLastR){
@@ -726,7 +726,7 @@ function sendCongratMsg(month, sender, replier) {
     if(isAll){
         var congratList = read(filepathList,"congrat.csv");
         var congratMsg = congratList[Math.floor((Math.random() * congratList.length))];
-        replier.reply(sender+"님 "+month+"월 인증을 모두 완료하셨습니다 !"+"\n"+congratMsg);
+        replier.reply(sender+"님 "+month+"월 체크를 모두 완료하셨습니다 !"+"\n"+congratMsg);
     }
 
 }
@@ -825,7 +825,7 @@ function getWeekNumber(calendarRaw, month, day){
 
 function getUserIndex(ephUserWeekList, sender){
     var userIndex = 0;
-    // 인증한 사람 인덱스 가져오기
+    // 체크한 사람 인덱스 가져오기
     for (var row = 1; row < ephUserWeekList.length; row++) {
         if (sender == ephUserWeekList[row][0]) {
             userIndex = row;
@@ -883,8 +883,8 @@ function ephWeekProof(month, day, sender, replier){
         var weekNumber = getWeekNumber(calendarRaw, month, day);
 
 
-        // 인증한 곳 ++ 또는 -- 해주기 | pm : plus minus 여부
-        // 멀티 인증 시 멀티 인증한 날짜수에 따라 인증 수 포함여부
+        // 체크한 곳 ++ 또는 -- 해주기 | pm : plus minus 여부
+        // 멀티 체크 시 멀티 체크한 날짜수에 따라 체크 수 포함여부
         for (var col = 1; col < ephWeekList[0].length; col++) {
             if (month + "월" + weekNumber + "주" == ephWeekList[0][col]) {
                 var singleProof =  Number(ephUserWeekMultiList[1][col]);

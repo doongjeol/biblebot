@@ -71,7 +71,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         var msgArr2 = msgArr1[1].split("주");
         var week = msgArr2[0];
 
-        replier.reply(printEphInfo(month, week));
+        replier.reply(printEphWeekInfo(month, week));
     }
 
     if(msg == "주디버그"){
@@ -82,6 +82,16 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         replier.reply(debugEphUserMultiList());
     }
 
+    // N월 인증결과
+    if(msg.includes("월인증결과")){
+        var msgArr1 = msg.split("월");
+        var month = msgArr1[0].substring(0, msgArr1[0].length);
+
+        replier.reply(month);
+
+        replier.reply(printEphMonthInfo(month));
+
+    }
 
     var viewMonthFlag = false;
     var viewDayFlag = false;
@@ -302,7 +312,7 @@ function printInfo(sender, month) {
     return fullCalendar;
 }
 
-function printEphInfo(month, week){
+function printEphWeekInfo(month, week){
     var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
     var weekCol = 0;
 
@@ -317,9 +327,8 @@ function printEphInfo(month, week){
     var yesProofUserList = "";
 
     if(weekCol == 0){
-        fullEphWeekList = "입력하신 월 또는 주를 확인를주세요.";
+        fullEphWeekList = "입력하신 월 또는 주를 확인해주세요.";
     } else {
-        // 주차별 인증 결과 파일에 저장
         for (var row = 1; row <= ephTotalUser; row++) {
             if (Number(ephWeekList[row][weekCol]) > 0) {
                 yesProofUserList += ephWeekList[row][0] + "\n";
@@ -330,6 +339,99 @@ function printEphInfo(month, week){
 
         fullEphWeekList = "- 인증 퀘스트 완료한 사람 🥰 -\n" + yesProofUserList +
             "\n- 인증 퀘스트 미완료한 사람 🥲 -\n" + noProofUserList;
+    }
+
+    return fullEphWeekList;
+}
+
+function getMonthStartEndCol(month){
+    month = Number(month);
+    var weekCol = [0,0];
+    var weekColStart = 0;
+    var weekColEnd = 0;
+
+    switch(month){
+        case 1 :
+            weekColStart = 1;
+            weekColEnd = 6;
+            break;
+        case 2 :
+            weekColStart = 6;
+            weekColEnd = 10;
+            break;
+        case 3 :
+            weekColStart = 10;
+            weekColEnd = 14;
+            break;
+        case 4 :
+            weekColStart = 14;
+            weekColEnd = 18;
+            break;
+        case 5 :
+            weekColStart = 19;
+            weekColEnd = 23;
+            break;
+        case 6 :
+            weekColStart = 23;
+            weekColEnd = 27;
+            break;
+        case 7 :
+            weekColStart = 27;
+            weekColEnd = 32;
+            break;
+        case 8 :
+            weekColStart = 32;
+            weekColEnd = 36;
+            break;
+        case 9 :
+            weekColStart = 36;
+            weekColEnd = 40;
+            break;
+        case 10 :
+            weekColStart = 40;
+            weekColEnd = 45;
+            break;
+        case 11 :
+            weekColStart = 45;
+            weekColEnd = 49;
+            break;
+        case 12 :
+            weekColStart = 49;
+            weekColEnd = 53;
+            break;
+    }
+
+    weekCol[0] = weekColStart;
+    weekCol[1] = weekColEnd;
+
+    return weekCol;
+
+}
+
+function printEphMonthInfo(month){
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+    var weekCol = getMonthStartEndCol(month);
+    var weekColStart = weekCol[0];
+    var weekColEnd = weekCol[1];
+
+
+    var fullEphWeekList = "";
+
+    if(weekColStart == 0 || weekColEnd == 0){
+        fullEphWeekList = "입력하신 월을 확인해주세요.";
+    } else {
+        for (var row = 1; row <= ephTotalUser; row++) {
+            fullEphWeekList += ephWeekList[row][0] + "\t"; // 이름
+            for(var col = weekColStart ; col <= weekColEnd ; col ++) {
+                if (Number(ephWeekList[row][col]) > 0) {
+                    fullEphWeekList += "✅" + "\t";
+                } else {
+                    fullEphWeekList += "◽" + "\t";
+                }
+            }
+            fullEphWeekList += "\n";
+        }
+
     }
 
     return fullEphWeekList;

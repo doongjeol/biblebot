@@ -18,7 +18,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     msg = trimSpace(msg);
     roomName = room;
     // 목록
-    if(msg == inputProof[9]){
+    if(msg == inputProof[9]+"키워드"){
         var list = read(filepathList,"prooflist.csv");
         var list2 = read(filepathList,"dainmsg.csv");
         var help = "";
@@ -75,11 +75,19 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
 
     if(msg == "주디버그"){
-        replier.reply(debugEphUserList());
+        try {
+            replier.reply(debugEphUserList());
+        } catch(e){
+            replier.reply(e);
+        }
     }
 
     if(msg == "딘디버그"){
-        replier.reply(debugEphUserMultiList());
+        try {
+            replier.reply(debugEphUserMultiList());
+        } catch(e){
+            replier.reply(e);
+        }
     }
 
     // N월 인증결과

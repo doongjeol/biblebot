@@ -990,7 +990,7 @@ function ephWeekMultiProofCount(month, day, sender, replier, count, isMulti){
 
 
 function ephWeekProof(month, day, sender, replier){
-    if(isEphUser(sender)) {
+    if(isEphRoom(roomName)) {
         var calendarRaw = read(filepathCallendarRaw, month + rawSuffix);
         var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
         var ephUserWeekMultiList = read(filepathEphWeekList + sender + "/", "ephUserWeekMultiList.csv");

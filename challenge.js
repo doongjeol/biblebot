@@ -17,6 +17,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     // msg 공백제거
     msg = trimSpace(msg);
     roomName = room;
+
     // 목록
     if(msg == inputProof[9]+"키워드"){
         var list = read(filepathList,"prooflist.csv");
@@ -94,8 +95,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     if(msg.includes("월인증결과")){
         var msgArr1 = msg.split("월");
         var month = msgArr1[0].substring(0, msgArr1[0].length);
-
-        replier.reply(month);
 
         replier.reply(printEphMonthInfo(month));
 
@@ -432,7 +431,7 @@ function printEphMonthInfo(month){
             fullEphWeekList += ephWeekList[row][0] + "\t"; // 이름
             for(var col = weekColStart ; col <= weekColEnd ; col ++) {
                 if (Number(ephWeekList[row][col]) > 0) {
-                    fullEphWeekList += "✅" + "\t";
+                    fullEphWeekList += "💟" + "\t";
                 } else {
                     fullEphWeekList += "◽" + "\t";
                 }
@@ -523,8 +522,12 @@ function checkProof(month, day, sender, replier){
     // 오늘 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
-            if(row == indexR && col == indexC && flag && userData[row][col] != "✅"){
-                userData[row][col] = "✅";
+            if(row == indexR && col == indexC && flag && userData[row][col] != "✅" && userData[row][col] != "💟"){
+                if(isEphRoom(roomName)){
+                    userData[row][col] = "💟";
+                } else {
+                    userData[row][col] = "✅";
+                }
                 count = 1;
                 ephWeekMultiProofCount(todayMonth, today, sender, replier, count, false); // 주차별 멀티 인증 카운트 파일에 저장
                 ephWeekProof(todayMonth, today, sender, replier); // 주 인증
@@ -638,22 +641,38 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(indexFirstR == indexLastR){
-                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "✅")  {
-                    userData[row][col] = "✅";
+                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "✅" && userData[row][col] != "💟" )  {
+                    if(isEphRoom(roomName)){
+                        userData[row][col] = "💟";
+                    } else {
+                        userData[row][col] = "✅";
+                    }
                     count ++;
                     checkWeek = true;
                 }
             } else {
-                if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "✅"){
-                    userData[row][col] = "✅";
+                if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "✅" && userData[row][col] != "💟"){
+                    if(isEphRoom(roomName)){
+                        userData[row][col] = "💟";
+                    } else {
+                        userData[row][col] = "✅";
+                    }
                     count ++;
                     checkWeek = true;
-                } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "✅"){
-                    userData[row][col] = "✅";
+                } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "✅" && userData[row][col] != "💟"){
+                    if(isEphRoom(roomName)){
+                        userData[row][col] = "💟";
+                    } else {
+                        userData[row][col] = "✅";
+                    }
                     count ++;
                     checkWeek = true;
-                } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "✅"){
-                    userData[row][col] = "✅";
+                } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "✅" && userData[row][col] != "💟"){
+                    if(isEphRoom(roomName)){
+                        userData[row][col] = "💟";
+                    } else {
+                        userData[row][col] = "✅";
+                    }
                     count ++;
                     checkWeek = true;
                 }
@@ -787,11 +806,11 @@ function isCheckAll(month,sender,replier) {
         for(var col = 0 ; col <calendarRaw[0].length ; col++) {
             if(!flag){
                 break;
-            } else if(row == indexFirstR && col >= indexFirstC && userData[row][col] == "✅"){
+            } else if(row == indexFirstR && col >= indexFirstC && (userData[row][col] == "✅" || userData[row][col] == "💟")){
                 count ++;
-            } else if(row == indexLastR && col <= indexLastC && userData[row][col] == "✅"){
+            } else if(row == indexLastR && col <= indexLastC && (userData[row][col] == "✅" || userData[row][col] == "💟")){
                 count ++;
-            } else if(row > indexFirstR && row < indexLastR && userData[row][col] == "✅"){
+            } else if(row > indexFirstR && row < indexLastR && (userData[row][col] == "✅" || userData[row][col] == "💟")){
                 count ++;
             }
         }
@@ -834,7 +853,8 @@ function isEphUser(sender){
 }
 
 function isEphRoom (room) {
-    if(room = "에바다"){
+    //debug
+    if(room == "찐에바다"){
         return true;
     }
 

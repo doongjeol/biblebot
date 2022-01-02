@@ -523,7 +523,7 @@ function checkProof(month, day, sender, replier){
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(row == indexR && col == indexC && flag && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                if(isEphRoom(roomName)){
+                if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                     userData[row][col] = "💟";
                 } else {
                     userData[row][col] = "✅";
@@ -642,7 +642,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
         for(var col = 0 ; col <7 ; col++) {
             if(indexFirstR == indexLastR){
                 if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "✅" && userData[row][col] != "💟" )  {
-                    if(isEphRoom(roomName)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
                     } else {
                         userData[row][col] = "✅";
@@ -652,7 +652,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                 }
             } else {
                 if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                    if(isEphRoom(roomName)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
                     } else {
                         userData[row][col] = "✅";
@@ -660,7 +660,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                     count ++;
                     checkWeek = true;
                 } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                    if(isEphRoom(roomName)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
                     } else {
                         userData[row][col] = "✅";
@@ -668,7 +668,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                     count ++;
                     checkWeek = true;
                 } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                    if(isEphRoom(roomName)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
                     } else {
                         userData[row][col] = "✅";
@@ -854,11 +854,24 @@ function isEphUser(sender){
 
 function isEphRoom (room) {
     //debug
-    if(room == "찐에바다"){
+    if(room == "에바다봇"){
         return true;
     }
 
     return false;
+}
+
+function isThisWeek(todayMonth, today, checkMonth, checkRow){
+    var calendarRaw = read(filepathCallendarRaw, todayMonth + rawSuffix);
+    // 이번주차 숫자 가져오기
+    var thisWeekNumber = getWeekNumber(calendarRaw, todayMonth, today);
+
+    if(todayMonth+"월"+thisWeekNumber+"주" == checkMonth+"월"+checkRow+"주"){
+        return true;
+    } else {
+        return false;
+    }
+
 }
 
 function sendCongratMsg(month, sender, replier) {

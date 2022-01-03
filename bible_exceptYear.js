@@ -4,7 +4,7 @@ const scriptName = "bible_exceptYear.js";
 var filepath = "/storage/emulated/0/KakaoTalkDownload/";
 var inputBible = ["오늘 성경", "어제 성경","내일 성경","이번주 성경","이번달 성경","월 성경","날짜 성경"];
 var inputBibleAbb = ["ㅇㄴ","ㅇㅈ","ㄴㅇ","ㅇㅂㅈ","ㅇㅂㄷ","ㅇ"];
-var inputEtc = ["심심해", "점심","성경"];
+var inputEtc = ["심심해", "점심","성경","체크"];
 var inputHelpKeyword = ["목록", "얼봇","키워드"];
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {

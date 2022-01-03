@@ -155,7 +155,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 var printData = printInfo(sender, month);
                 replier.reply(sender + outputSuffix[0]);
                 replier.reply(month + "월\n" + printData);
-                sendCongratMsg(month, sender, replier)
+                sendCongratMsg(month, sender, replier);
             }
         }
 
@@ -202,6 +202,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
                 var printData = printInfo(sender, month);
                 replier.reply(sender + outputSuffix[0]);
                 replier.reply(month + "월\n" + printData);
+                sendCongratMsg(month, sender, replier);
             }
         }
 
@@ -472,10 +473,10 @@ function debugEphUserMultiList(){
     return debug;
 }
 
-function makeContent(fileArray){
+function makeContent(fileArray, totalCol){
     var fullContent = ""
     for (var row = 0; row < fileArray.length; row++) {
-        for (var col = 0; col < fileArray[0].length; col++) {
+        for (var col = 0; col < totalCol; col++) {
             fullContent += fileArray[row][col] + "\t";
         }
         fullContent += "\n";
@@ -1005,17 +1006,17 @@ function ephWeekMultiProofCount(month, day, sender, replier, count, isMulti){
     var calendarRaw = read(filepathCallendarRaw, month + rawSuffix);
     var weekNumber = getWeekNumber(calendarRaw,month,day);
     var state = 0;
-    for(var col = 0 ; col < ephUserWeekMultiList[0].length ; col++){
+    for(var col = 0 ; col < 54 ; col++){
         if (month + "월" + weekNumber + "주" == ephUserWeekMultiList[0][col]) {
-            if(!isMulti) {
+            if(!isMulti && isEphRoom(roomName)) {
                 ephUserWeekMultiList[1][col] = Number(ephUserWeekMultiList[1][col]) + count;
-            } else if(isMulti){
+            } else if(isMulti && isEphRoom(roomName)){
                 ephUserWeekMultiList[2][col] = Number(ephUserWeekMultiList[2][col]) + count;
             }
         }
     }
 
-    var fullEphWeekMultiProofList = makeContent(ephUserWeekMultiList);
+    var fullEphWeekMultiProofList = makeContent(ephUserWeekMultiList, 54);
     save(filepathEphWeekList + sender + "/","ephUserWeekMultiList.csv",fullEphWeekMultiProofList);
 
     return state;
@@ -1023,42 +1024,40 @@ function ephWeekMultiProofCount(month, day, sender, replier, count, isMulti){
 
 
 function ephWeekProof(month, day, sender, replier){
-    if(isEphRoom(roomName)) {
-        var calendarRaw = read(filepathCallendarRaw, month + rawSuffix);
-        var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
-        var ephUserWeekMultiList = read(filepathEphWeekList + sender + "/", "ephUserWeekMultiList.csv");
+    var calendarRaw = read(filepathCallendarRaw, month + rawSuffix);
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+    var ephUserWeekMultiList = read(filepathEphWeekList + sender + "/", "ephUserWeekMultiList.csv");
 
 
-        // 에바다 단원 인덱스 가져오기
-        var userIndex = getUserIndex(ephWeekList, sender);
+    // 에바다 단원 인덱스 가져오기
+    var userIndex = getUserIndex(ephWeekList, sender);
 
-        // 이번주차 숫자 가져오기
-        var weekNumber = getWeekNumber(calendarRaw, month, day);
+    // 이번주차 숫자 가져오기
+    var weekNumber = getWeekNumber(calendarRaw, month, day);
 
 
-        // 체크한 곳 ++ 또는 -- 해주기 | pm : plus minus 여부
-        // 멀티 체크 시 멀티 체크한 날짜수에 따라 체크 수 포함여부
-        for (var col = 1; col < ephWeekList[0].length; col++) {
-            if (month + "월" + weekNumber + "주" == ephWeekList[0][col]) {
-                var singleProof =  Number(ephUserWeekMultiList[1][col]);
-                var multiProof =  Number(ephUserWeekMultiList[2][col]);
+    // 체크한 곳 ++ 또는 -- 해주기 | pm : plus minus 여부
+    // 멀티 체크 시 멀티 체크한 날짜수에 따라 체크 수 포함여부
+    for (var col = 1; col < 54; col++) {
+        if (month + "월" + weekNumber + "주" == ephWeekList[0][col]) {
+            var singleProof =  Number(ephUserWeekMultiList[1][col]);
+            var multiProof =  Number(ephUserWeekMultiList[2][col]);
 
-                if(singleProof > 0 && multiProof > 0){
-                    ephWeekList[userIndex][col] = 2;
-                } else if(singleProof * multiProof < 0){
-                    ephWeekList[userIndex][col] = 1;
-                } else if( (singleProof == 0 && multiProof > 0) || (singleProof > 0 && multiProof == 0)){
-                    ephWeekList[userIndex][col] = 1;
-                } else {
-                    ephWeekList[userIndex][col] = 0;
-                }
-                break;
+            if(singleProof > 0 && multiProof > 0){
+                ephWeekList[userIndex][col] = 2;
+            } else if(singleProof * multiProof < 0){
+                ephWeekList[userIndex][col] = 1;
+            } else if( (singleProof == 0 && multiProof > 0) || (singleProof > 0 && multiProof == 0)){
+                ephWeekList[userIndex][col] = 1;
+            } else {
+                ephWeekList[userIndex][col] = 0;
             }
+            break;
         }
-
-        var fullEphWeekList = makeContent(ephWeekList);
-
-        // 주차별 인증 결과 파일에 저장
-        save(filepathEphWeekList, "ephWeekProof.csv", fullEphWeekList);
     }
+
+    var fullEphWeekList = makeContent(ephWeekList, 54);
+
+    // 주차별 인증 결과 파일에 저장
+    save(filepathEphWeekList, "ephWeekProof.csv", fullEphWeekList);
 }

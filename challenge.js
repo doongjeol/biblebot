@@ -547,12 +547,12 @@ function checkProof(month, day, sender, replier){
             if(row == indexR && col == indexC && flag && userData[row][col] != "✅" && userData[row][col] != "💟"){
                 if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                     userData[row][col] = "💟";
+                    count = 1;
+                    ephWeekMultiProofCount(todayMonth, today, sender, replier, count, false); // 주차별 멀티 인증 카운트 파일에 저장
+                    ephWeekProof(todayMonth, today, sender, replier); // 주 인증
                 } else {
                     userData[row][col] = "✅";
                 }
-                count = 1;
-                ephWeekMultiProofCount(todayMonth, today, sender, replier, count, false); // 주차별 멀티 인증 카운트 파일에 저장
-                ephWeekProof(todayMonth, today, sender, replier); // 주 인증
             }
             fullCalendar += userData[row][col]+"\t";
         }
@@ -603,8 +603,10 @@ function cancelProof(month, day,sender, replier){
             if(row == indexR && col == indexC && flag && userData[row][col] != calendarEmoji[row][col]){
                 userData[row][col] = calendarEmoji[row][col];
                 count = -1;
-                ephWeekMultiProofCount(todayMonth, today, sender, replier, count, false); // 주차별 멀티 인증 카운트 파일에 저장
-                ephWeekProof(todayMonth, today, sender, replier); // 주 인증
+                if(isEphUser(sender)) {
+                    ephWeekMultiProofCount(todayMonth, today, sender, replier, count, false); // 주차별 멀티 인증 카운트 파일에 저장
+                    ephWeekProof(todayMonth, today, sender, replier); // 주 인증
+                }
             }
             fullCalendar += userData[row][col]+"\t";
         }
@@ -666,37 +668,37 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                 if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "✅" && userData[row][col] != "💟" )  {
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
+                        count ++;
+                        checkWeek = true;
                     } else {
                         userData[row][col] = "✅";
                     }
-                    count ++;
-                    checkWeek = true;
                 }
             } else {
                 if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "✅" && userData[row][col] != "💟"){
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
+                        count ++;
+                        checkWeek = true;
                     } else {
                         userData[row][col] = "✅";
                     }
-                    count ++;
-                    checkWeek = true;
                 } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "✅" && userData[row][col] != "💟"){
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
+                        count ++;
+                        checkWeek = true;
                     } else {
                         userData[row][col] = "✅";
                     }
-                    count ++;
-                    checkWeek = true;
                 } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "✅" && userData[row][col] != "💟"){
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
                         userData[row][col] = "💟";
+                        count ++;
+                        checkWeek = true;
                     } else {
                         userData[row][col] = "✅";
                     }
-                    count ++;
-                    checkWeek = true;
                 }
             }
             fullCalendar += userData[row][col]+"\t";
@@ -783,6 +785,10 @@ function cancelMultiProof(month, firstday, lastday, sender, replier){
             fullCalendar += userData[row][col]+"\t";
         }
         fullCalendar+="\n";
+    }
+
+    if(!isEphUser(sender)){
+        checkWeek = false;
     }
 
     if(checkWeek) {
@@ -1029,9 +1035,9 @@ function ephWeekMultiProofCount(month, day, sender, replier, count, isMulti){
     var state = 0;
     for(var col = 0 ; col < 54 ; col++){
         if (month + "월" + weekNumber + "주" == ephUserWeekMultiList[0][col]) {
-            if(!isMulti && isEphRoom(roomName)) {
+            if(!isMulti && (isEphRoom(roomName) || count<0)) {
                 ephUserWeekMultiList[1][col] = Number(ephUserWeekMultiList[1][col]) + count;
-            } else if(isMulti && isEphRoom(roomName)){
+            } else if(isMulti && (isEphRoom(roomName)|| count<0)){
                 ephUserWeekMultiList[2][col] = Number(ephUserWeekMultiList[2][col]) + count;
             }
         }
@@ -1054,12 +1060,14 @@ function ephWeekProof(month, day, sender, replier){
         ephUserWeekMultiList = ephUserWeekMultiListRaw;
     }
 
-
     // 에바다 단원 인덱스 가져오기
     var userIndex = getUserIndex(ephWeekList, sender);
 
     // 이번주차 숫자 가져오기
     var weekNumber = getWeekNumber(calendarRaw, month, day);
+
+    if(userIndex == 0)
+        return;
 
 
     // 체크한 곳 ++ 또는 -- 해주기 | pm : plus minus 여부

@@ -66,6 +66,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     }
 
     // N월 N주 인증결과
+    // ----- 에바다 리더를 위한 키워드
     if(msg.includes("주인증결과")){
         var msgArr1 = msg.split("월");
         var month = msgArr1[0].substring(0, msgArr1[0].length);
@@ -91,6 +92,24 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
     }
 
+    if(msg=="에바다목록동기화"){
+        var date = new Date();
+        var month = getMonth(date);
+        var day = getDay(date);
+        var ephUserList = reloadEphWeekProof(replier);
+        for(var i=1 ; i<=ephTotalUser ; i++) {
+            ephWeekProof(month, day, ephUserList[i], replier);
+        }
+        replier.reply("이번주 인증 동기화 완료");
+    }
+
+    // 특정 단원 이번달 성경읽은결과
+    if(msg.includes("님ㅈㅎ")){
+        var msgArr1 = msg.split("님");
+        sender = msgArr1[0].substring(0, msgArr1[0].length);
+        msg = inputProof[6];
+
+    }
     // N월 인증결과
     if(msg.includes("월인증결과")){
         var msgArr1 = msg.split("월");
@@ -99,6 +118,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         replier.reply(printEphMonthInfo(month));
 
     }
+
+    // ----------------------------------
 
     var viewMonthFlag = false;
     var viewDayFlag = false;
@@ -1027,6 +1048,11 @@ function ephWeekProof(month, day, sender, replier){
     var calendarRaw = read(filepathCallendarRaw, month + rawSuffix);
     var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
     var ephUserWeekMultiList = read(filepathEphWeekList + sender + "/", "ephUserWeekMultiList.csv");
+    var ephUserWeekMultiListRaw = read(filepathEphWeekList, "ephUserWeekMultiList.csv");
+
+    if(ephUserWeekMultiList == null){
+        ephUserWeekMultiList = ephUserWeekMultiListRaw;
+    }
 
 
     // 에바다 단원 인덱스 가져오기
@@ -1060,4 +1086,14 @@ function ephWeekProof(month, day, sender, replier){
 
     // 주차별 인증 결과 파일에 저장
     save(filepathEphWeekList, "ephWeekProof.csv", fullEphWeekList);
+}
+
+function reloadEphWeekProof(replier){
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+    var ephUserList = [];
+    for(var i=1 ; i<=ephTotalUser ; i++){
+        ephUserList[i] = ephWeekList[i][0];
+    }
+
+    return ephUserList;
 }

@@ -455,7 +455,7 @@ function printEphMonthInfo(month){
                 if (Number(ephWeekList[row][col]) > 0) {
                     fullEphWeekList += "💟" + "\t";
                 } else {
-                    fullEphWeekList += "◽" + "\t";
+                    fullEphWeekList += "◻" + "\t";
                 }
             }
             fullEphWeekList += "\n";

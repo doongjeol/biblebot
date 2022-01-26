@@ -450,7 +450,8 @@ function printEphMonthInfo(month){
         fullEphWeekList = "입력하신 월을 확인해주세요.";
     } else {
         for (var row = 1; row <= ephTotalUser; row++) {
-            fullEphWeekList += ephWeekList[row][0] + "\t"; // 이름
+            var name = ephWeekList[row][0];
+            fullEphWeekList += name.substring(name.length-2, name.length) + "\t"; // 이름
             for(var col = weekColStart ; col <= weekColEnd ; col ++) {
                 if (Number(ephWeekList[row][col]) > 0) {
                     fullEphWeekList += "💟" + "\t";

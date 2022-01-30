@@ -1069,7 +1069,9 @@ function getWeekNumber(calendarRaw, month, day){
         weekNumber = 1;
     }
 
-    return weekNumber;
+    var weekData = [month, weekNumber];
+
+    return weekData;
 }
 
 function getUserIndex(ephUserWeekList, sender){
@@ -1099,10 +1101,11 @@ function ephWeekMultiProofCount(month, day, sender, replier, count, isMulti){
     }
 
     var calendarRaw = read(filepathCallendarRaw, month + rawSuffix);
-    var weekNumber = getWeekNumber(calendarRaw,month,day);
+    var weekMonth = getWeekNumber(calendarRaw,month,day)[0]
+    var weekNumber = getWeekNumber(calendarRaw,month,day)[1];
     var state = 0;
     for(var col = 0 ; col < 54 ; col++){
-        if (month + "월" + weekNumber + "주" == ephUserWeekMultiList[0][col]) {
+        if (weekMonth + "월" + weekNumber + "주" == ephUserWeekMultiList[0][col]) {
             if(!isMulti && (isEphRoom(roomName) || count<0)) {
                 ephUserWeekMultiList[1][col] = Number(ephUserWeekMultiList[1][col]) + count;
             } else if(isMulti && (isEphRoom(roomName)|| count<0)){
@@ -1132,7 +1135,8 @@ function ephWeekProof(month, day, sender, replier){
     var userIndex = getUserIndex(ephWeekList, sender);
 
     // 이번주차 숫자 가져오기
-    var weekNumber = getWeekNumber(calendarRaw, month, day);
+    var weekMonth = getWeekNumber(calendarRaw,month,day)[0]
+    var weekNumber = getWeekNumber(calendarRaw,month,day)[1];
 
     if(userIndex == 0)
         return;
@@ -1141,7 +1145,7 @@ function ephWeekProof(month, day, sender, replier){
     // 체크한 곳 ++ 또는 -- 해주기 | pm : plus minus 여부
     // 멀티 체크 시 멀티 체크한 날짜수에 따라 체크 수 포함여부
     for (var col = 1; col < 54; col++) {
-        if (month + "월" + weekNumber + "주" == ephWeekList[0][col]) {
+        if (weekMonth + "월" + weekNumber + "주" == ephWeekList[0][col]) {
             var singleProof =  Number(ephUserWeekMultiList[1][col]);
             var multiProof =  Number(ephUserWeekMultiList[2][col]);
 

@@ -111,7 +111,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
     // N월 인증결과
-    if(msg.includes("월인증결과")){
+    if(msg.includes("월인증및체크결과")){
         var msgArr1 = msg.split("월");
         var month = msgArr1[0].substring(0, msgArr1[0].length);
 
@@ -443,7 +443,6 @@ function printEphMonthInfo(month){
     var weekColStart = weekCol[0];
     var weekColEnd = weekCol[1];
 
-
     var fullEphWeekList = "";
 
     if(weekColStart == 0 || weekColEnd == 0){
@@ -451,6 +450,16 @@ function printEphMonthInfo(month){
     } else {
         for (var row = 1; row <= ephTotalUser; row++) {
             var name = ephWeekList[row][0];
+            var countCheck = 0;
+            var ephWeekUserList = read(filepathSave, name+"/"+name+month+".csv");
+            for(var rowI = 1 ; rowI < ephWeekUserList.length ; rowI++){
+                for(var colI = 0 ; colI < ephWeekUserList[0].length ; colI++){
+                    if(ephWeekUserList[rowI][colI] == "💟" || ephWeekUserList[rowI][colI] == "✅"){
+                        countCheck ++;
+                    }
+                }
+            }
+
             fullEphWeekList += name.substring(name.length-2, name.length) + "\t"; // 이름
             for(var col = weekColStart ; col <= weekColEnd ; col ++) {
                 if (Number(ephWeekList[row][col]) > 0) {
@@ -459,7 +468,64 @@ function printEphMonthInfo(month){
                     fullEphWeekList += "◻" + "\t";
                 }
             }
-            fullEphWeekList += "\n";
+
+            fullEphWeekList += countCheck+ "쳌"+"\n";
+        }
+
+    }
+
+    return fullEphWeekList;
+}
+
+function printEphMonthInfoPercent(month){
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+    var weekCol = getMonthStartEndCol(month);
+    var weekColStart = weekCol[0];
+    var weekColEnd = weekCol[1];
+    var flag31 = false;
+    var flag30 = false;
+    if(month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+        flag31 = true;
+    if(month == 4 || month == 6 || month == 9 || month == 11)
+        flag30 = true;
+
+    var fullEphWeekList = "";
+
+    if(weekColStart == 0 || weekColEnd == 0){
+        fullEphWeekList = "입력하신 월을 확인해주세요.";
+    } else {
+        for (var row = 1; row <= ephTotalUser; row++) {
+            var name = ephWeekList[row][0];
+            var countCheck = 0;
+            var percent = 0;
+            var ephWeekUserList = read(filepathSave, name+"/"+name+month+".csv");
+            for(var rowI = 1 ; rowI < ephWeekUserList.length ; rowI++){
+                for(var colI = 0 ; colI < ephWeekUserList[0].length ; colI++){
+                    if(ephWeekUserList[rowI][colI] == "💟" || ephWeekUserList[rowI][colI] == "✅"){
+                        countCheck ++;
+                    }
+                }
+            }
+            if(flag30){
+                percent = (countCheck / 30) * 100;
+            } else if(flag31){
+                percent = (countCheck / 31) * 100;
+            } else {
+                percent = (countCheck / 28) * 100;
+            }
+
+            percent = (Number(percent));
+
+            fullEphWeekList += name.substring(name.length-2, name.length) + "\t"; // 이름
+            for(var col = weekColStart ; col <= weekColEnd ; col ++) {
+                if (Number(ephWeekList[row][col]) > 0) {
+                    fullEphWeekList += "💟" + "\t";
+                } else {
+                    fullEphWeekList += "◻" + "\t";
+                }
+            }
+
+            fullEphWeekList += countCheck+ "일"+percent+"%\n";
         }
 
     }

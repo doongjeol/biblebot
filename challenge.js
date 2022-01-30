@@ -612,7 +612,7 @@ function checkProof(month, day, sender, replier){
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(row == indexR && col == indexC && flag && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
+                if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row, replier)){
                     userData[row][col] = "💟";
                     count = 1;
                     ephWeekMultiProofCount(todayMonth, today, sender, replier, count, false); // 주차별 멀티 인증 카운트 파일에 저장
@@ -733,7 +733,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
         for(var col = 0 ; col <7 ; col++) {
             if(indexFirstR == indexLastR){
                 if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "✅" && userData[row][col] != "💟" )  {
-                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;
                         checkWeek = true;
@@ -743,7 +743,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                 }
             } else {
                 if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;
                         checkWeek = true;
@@ -751,7 +751,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                         userData[row][col] = "✅";
                     }
                 } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;
                         checkWeek = true;
@@ -759,7 +759,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                         userData[row][col] = "✅";
                     }
                 } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "✅" && userData[row][col] != "💟"){
-                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row)){
+                    if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;
                         checkWeek = true;
@@ -956,10 +956,11 @@ function isEphRoom (room) {
     return false;
 }
 
-function isThisWeek(todayMonth, today, checkMonth, checkRow){
+function isThisWeek(todayMonth, today, checkMonth, checkRow, replier){
     var calendarRaw = read(filepathCallendarRaw, todayMonth + rawSuffix);
     // 이번주차 숫자 가져오기
     var thisWeekNumber = getWeekNumber(calendarRaw, todayMonth, today);
+    checkRow = getWeekNumber(calendarRaw, checkMonth, today);
 
     if(todayMonth+"월"+thisWeekNumber+"주" == checkMonth+"월"+checkRow+"주"){
         return true;

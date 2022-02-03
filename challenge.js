@@ -452,10 +452,12 @@ function printEphMonthInfo(month){
             var name = ephWeekList[row][0];
             var countCheck = 0;
             var ephWeekUserList = read(filepathSave, name+"/"+name+month+".csv");
-            for(var rowI = 1 ; rowI < ephWeekUserList.length ; rowI++){
-                for(var colI = 0 ; colI < ephWeekUserList[0].length ; colI++){
-                    if(ephWeekUserList[rowI][colI] == "💟" || ephWeekUserList[rowI][colI] == "✅"){
-                        countCheck ++;
+            if (ephWeekUserList != null) {
+                for (var rowI = 1; rowI < ephWeekUserList.length; rowI++) {
+                    for (var colI = 0; colI < ephWeekUserList[0].length; colI++) {
+                        if (ephWeekUserList[rowI][colI] == "💟" || ephWeekUserList[rowI][colI] == "✅") {
+                            countCheck++;
+                        }
                     }
                 }
             }
@@ -611,7 +613,7 @@ function checkProof(month, day, sender, replier){
     // 오늘 날짜 읽기 표시하기
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
-            if(row == indexR && col == indexC && flag && userData[row][col] != "✅" && userData[row][col] != "💟"){
+            if(row == indexR && col == indexC && flag && userData[row][col] != "💟"){
                 if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row, replier)){
                     userData[row][col] = "💟";
                     count = 1;
@@ -732,7 +734,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
     for(var row=0 ; row<userData.length ; row++){
         for(var col = 0 ; col <7 ; col++) {
             if(indexFirstR == indexLastR){
-                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "✅" && userData[row][col] != "💟" )  {
+                if(row == indexFirstR && (col >= indexFirstC && col <= indexLastC) && userData[row][col] != "💟" )  {
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;
@@ -742,7 +744,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                     }
                 }
             } else {
-                if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "✅" && userData[row][col] != "💟"){
+                if(row == indexFirstR && col >= indexFirstC && userData[row][col] != "💟"){
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;
@@ -750,7 +752,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                     } else {
                         userData[row][col] = "✅";
                     }
-                } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "✅" && userData[row][col] != "💟"){
+                } else if (row == indexLastR && col <= indexLastC && userData[row][col] != "💟"){
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;
@@ -758,7 +760,7 @@ function checkMultiProof(month, firstday, lastday, sender, replier){
                     } else {
                         userData[row][col] = "✅";
                     }
-                } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "✅" && userData[row][col] != "💟"){
+                } else if(row > indexFirstR && row < indexLastR && userData[row][col] != "💟"){
                     if(isEphRoom(roomName) && isThisWeek(todayMonth,today,month,row,replier)){
                         userData[row][col] = "💟";
                         count ++;

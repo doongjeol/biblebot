@@ -17,20 +17,20 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     // msg 공백제거
     msg = trimSpace(msg);
     roomName = room;
+    var isChallenge = false;
 
+    if(msg.charAt(0)=='#'){
+        isChallenge = true;
+    }
     // 목록
     if(msg == inputProof[9]+"키워드"){
-        var list = read(filepathList,"prooflist.csv");
+        checkInfo(replier);
         var list2 = read(filepathList,"dainmsg.csv");
-        var help = "";
         var help2 = "";
-        for(var i=0 ; i<list.length ; i++){
-            help+= list[i] + "\n";
-        }
+
         for(var i=0 ; i<list2.length ; i++){
             help2+= list2[i] + "\n";
         }
-        replier.reply(help);
         replier.reply(help2);
     }
 
@@ -47,7 +47,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         replier.reply(sender+outputSuffix[0]);
         replier.reply(month+"월\n"+printData);
         sendCongratMsg(month, sender, replier)
-
     }
 
     // 해제
@@ -65,62 +64,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     }
 
-    // N월 N주 인증결과
-    // ----- 에바다 리더를 위한 키워드
-    if(msg.includes("주인증결과")){
-        var msgArr1 = msg.split("월");
-        var month = msgArr1[0].substring(0, msgArr1[0].length);
-        var msgArr2 = msgArr1[1].split("주");
-        var week = msgArr2[0];
-
-        replier.reply(printEphWeekInfo(month, week));
-    }
-
-    if(msg == "주디버그"){
-        try {
-            replier.reply(debugEphUserList());
-        } catch(e){
-            replier.reply(e);
-        }
-    }
-
-    if(msg == "딘디버그"){
-        try {
-            replier.reply(debugEphUserMultiList());
-        } catch(e){
-            replier.reply(e);
-        }
-    }
-
-    if(msg=="에바다목록동기화"){
-        var date = new Date();
-        var month = getMonth(date);
-        var day = getDay(date);
-        var ephUserList = reloadEphWeekProof(replier);
-        for(var i=1 ; i<=ephTotalUser ; i++) {
-            ephWeekProof(month, day, ephUserList[i], replier);
-        }
-        replier.reply("이번주 인증 동기화 완료");
-    }
-
-    // 특정 단원 이번달 성경읽은결과
-    if(msg.includes("님ㅈㅎ")){
-        var msgArr1 = msg.split("님");
-        sender = msgArr1[0].substring(0, msgArr1[0].length);
-        msg = inputProof[6];
-
-    }
-    // N월 인증결과
-    if(msg.includes("월인증및체크결과")){
-        var msgArr1 = msg.split("월");
-        var month = msgArr1[0].substring(0, msgArr1[0].length);
-
-        replier.reply(printEphMonthInfo(month));
-
-    }
-
-    // ----------------------------------
-
     var viewMonthFlag = false;
     var viewDayFlag = false;
 
@@ -133,7 +76,10 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     } else if(msg == "#월일조회" || msg == "#월일ㅈㅎ"){
         replier.reply("'#N월 ㅈㅎ'으로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
     } else if(msg == "#월-일체크" || msg == "#월-일ㅊㅋ"){
-              replier.reply("'#N월 N-N일 ㅊㅋ'으로 입력해주세요.\n"+"예시 : #12월 1-25일 ㅊㅋ");
+      replier.reply("'#N월 N-N일 ㅊㅋ'으로 입력해주세요.\n"+"예시 : #12월 1-25일 ㅊㅋ");
+    } else if(msg.includes("일#")){
+        replier.reply("입력하신 키워드를 확인해주세요.");
+        checkExample(replier);
     } else if(msg.includes("#")&&msg.includes("월")&&!msg.includes("일")){
         viewMonthFlag = true;
     } else if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")) {
@@ -142,7 +88,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     try {
         // 특정 달의 체크 현황 보기
-        if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7) {
+        if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7 && isChallenge) {
             var msgArr = msg.split("월");
             var month = msgArr[0].substring(1, msgArr[0].length);
             var printData = printInfo(sender, month);
@@ -160,7 +106,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // 특정 날짜 체크
-        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && !msg.includes("-") && msg.length <10) {
+        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && !msg.includes("-") && msg.length <10 && isChallenge) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
@@ -168,7 +114,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             var data = checkProof(month, day, sender, replier); // 달력
 
             if(data === ""|| !month || !day ){
-                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                replier.reply("입력하신 월 또는 일을 확인해주세요.");
+                checkExample(replier);
             } else {
                 var filename = senderFileName(sender, month);
                 save(filepathSave + sender + "/", filename, data);
@@ -181,7 +128,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // 특정 날짜 체크 해제
-        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && !msg.includes("-") && msg.length <10) {
+        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && !msg.includes("-") && msg.length <10 && isChallenge) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
@@ -189,7 +136,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             var data = cancelProof(month, day, sender, replier); // 달력
 
             if(data === "" || !month || !day){
-                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                replier.reply("입력하신 월 또는 일을 확인해주세요.");
+                checkExample(replier);
             } else {
                 var filename = senderFileName(sender, month);
                 save(filepathSave + sender + "/", filename, data);
@@ -200,7 +148,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // 연속된 날짜 체크
-        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && msg.includes("-") && msg.length <13) {
+        if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && msg.includes("-") && msg.length <14 && isChallenge) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
@@ -209,14 +157,16 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             var lastday = msgArr3[1];
 
             if(!month || !firstday || !lastday || firstday > lastday){
-                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                replier.reply("입력하신 월 또는 일을 확인해주세요.");
+                checkExample(replier);
                 return;
             }
 
             var data = checkMultiProof(month, firstday, lastday, sender, replier);
 
             if(data === ""){
-                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                replier.reply("입력하신 월 또는 일을 확인해주세요.");
+                checkExample(replier);
             } else {
                 var filename = senderFileName(sender, month);
                 save(filepathSave + sender + "/", filename, data);
@@ -228,7 +178,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // 연속된 날짜 체크해제
-        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && msg.includes("-")  && msg.length <13) {
+        if (viewDayFlag && (msg.includes(inputProof[10]) || msg.includes(inputProof[11])) && msg.includes("-")  && msg.length <14 && isChallenge) {
             var msgArr1 = msg.split("월");
             var month = msgArr1[0].substring(1, msgArr1[0].length);
             var msgArr2 = msgArr1[1].split("일");
@@ -237,13 +187,15 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             var lastday = msgArr3[1];
 
             if(!month || !firstday || !lastday || firstday > lastday){
-                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                replier.reply("입력하신 월 또는 일을 확인해주세요.");
+                checkExample(replier);
                 return;
             }
 
             var data = cancelMultiProof(month, firstday, lastday, sender, replier);
             if(data === ""){
-                replier.reply("입력하신 월 또는 일을 확인해주세요.")
+                replier.reply("입력하신 월 또는 일을 확인해주세요.");
+                checkExample(replier);
             } else {
                 var filename = senderFileName(sender, month);
                 save(filepathSave + sender + "/", filename, data);
@@ -253,8 +205,65 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             }
         }
 
+        // N월 N주 인증결과
+        // ----- 에바다 리더를 위한 키워드
+        if(msg.includes("주인증결과")){
+            var msgArr1 = msg.split("월");
+            var month = msgArr1[0].substring(0, msgArr1[0].length);
+            var msgArr2 = msgArr1[1].split("주");
+            var week = msgArr2[0];
+
+            replier.reply(printEphWeekInfo(month, week));
+        }
+
+        if(msg == "주디버그"){
+            try {
+                replier.reply(debugEphUserList());
+            } catch(e){
+                replier.reply(e);
+            }
+        }
+
+        if(msg == "딘디버그"){
+            try {
+                replier.reply(debugEphUserMultiList());
+            } catch(e){
+                replier.reply(e);
+            }
+        }
+
+        if(msg=="에바다목록동기화"){
+            var date = new Date();
+            var month = getMonth(date);
+            var day = getDay(date);
+            var ephUserList = reloadEphWeekProof(replier);
+            for(var i=1 ; i<=ephTotalUser ; i++) {
+                ephWeekProof(month, day, ephUserList[i], replier);
+            }
+            replier.reply("이번주 인증 동기화 완료");
+        }
+
+        // 특정 단원 이번달 성경읽은결과
+        if(msg.includes("님ㅈㅎ")){
+            var msgArr1 = msg.split("님");
+            sender = msgArr1[0].substring(0, msgArr1[0].length);
+            msg = inputProof[6];
+
+        }
+        // N월 인증결과
+        if(msg.includes("월인증및체크결과")){
+            var msgArr1 = msg.split("월");
+            var month = msgArr1[0].substring(0, msgArr1[0].length);
+
+            replier.reply(printEphMonthInfo(month));
+
+        }
+
+        // ----------------------------------
+
     } catch (e) {
         replier.reply("입력하신 키워드를 확인해주세요.");
+        checkExample(replier);
         replier.reply(e);
 
     }
@@ -1178,4 +1187,22 @@ function reloadEphWeekProof(replier){
     }
 
     return ephUserList;
+}
+
+function checkInfo(replier){
+    var list = read(filepathList,"prooflist.csv");
+    var help = "";
+    for(var i=0 ; i<list.length ; i++){
+        help+= list[i] + "\n";
+    }
+    replier.reply(help);
+}
+
+function checkExample(replier){
+    var list = read(filepathList,"checkexample.csv");
+    var help = "";
+    for(var i=0 ; i<list.length ; i++){
+        help+= list[i] + "\n";
+    }
+    replier.reply(help);
 }

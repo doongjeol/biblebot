@@ -156,7 +156,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             var firstday = msgArr3[0];
             var lastday = msgArr3[1];
 
-            if(!month || !firstday || !lastday || firstday > lastday){
+            if(!month || !firstday || !lastday || Number(firstday) > Number(lastday)){
                 replier.reply("입력하신 월 또는 일을 확인해주세요.");
                 checkExample(replier);
                 return;

@@ -259,6 +259,15 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         }
 
+        // N월 인증결과
+        if(msg.includes("분기결과")){
+            var msgArr1 = msg.split("분");
+            var qNum = msgArr1[0].substring(0, msgArr1[0].length);
+
+            replier.reply(printQuarterInfo(qNum,replier));
+
+        }
+
         // ----------------------------------
 
     } catch (e) {
@@ -538,6 +547,104 @@ function printEphMonthInfoPercent(month){
 
             fullEphWeekList += countCheck+ "일"+percent+"%\n";
         }
+
+    }
+
+    return fullEphWeekList;
+}
+
+function printQuarterInfo(quarter,replier) {
+    var month = [];
+    var start = 0;
+    var score = [];
+    var weekProofNum = 0;
+
+    switch (quarter) {
+        case "1" :
+            month[1] = "2";
+            month[2] = "3";
+            start = 1;
+            weekProofNum = "9";
+            score[0] = 8;
+            score[1] = 42;
+            break;
+        case "2" :
+            month[0] = "4";
+            month[1] = "5";
+            month[2] = "6";
+            weekProofNum = "14";
+            score[0] = 13;
+            score[1] = 72;
+            break;
+        case "3" :
+            month[0] = "7";
+            month[1] = "8";
+            month[2] = "9";
+            weekProofNum = "14";
+            score[0] = 13;
+            score[1] = 73;
+            break;
+        case "4" :
+            month[0] = "10";
+            month[1] = "11";
+            month[2] = "12";
+            weekProofNum = "14";
+            score[0] = 13;
+            score[1] = 73;
+            break;
+    }
+
+    var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");
+    var fullEphWeekList = "";
+
+    if(month == null){
+        fullEphWeekList = "입력하신 월을 확인해주세요.";
+    } else{
+        fullEphWeekList = "---------- "+quarter+"분기 결과 ----------\n";
+    }
+
+
+    for (var row = 1; row <= ephTotalUser; row++) {
+        var name = ephWeekList[row][0];
+        var countCheck = 0;
+        var countWeekCheck = 0;
+
+        for(var i=start ; i<3 ; i++) {
+            var weekCol = getMonthStartEndCol(month[i]);
+            var weekColStart = weekCol[0];
+            var weekColEnd = weekCol[1];
+
+            var ephWeekUserList = read(filepathSave, name + "/" + name + month[i] + ".csv");
+            if (ephWeekUserList != null) {
+                for (var rowI = 1; rowI < ephWeekUserList.length; rowI++) {
+                    for (var colI = 0; colI < ephWeekUserList[0].length; colI++) {
+                        if (ephWeekUserList[rowI][colI] == "💟" || ephWeekUserList[rowI][colI] == "✅") {
+                            countCheck++;
+                        }
+                    }
+                }
+            }
+
+            for (var col = weekColStart; col <= weekColEnd; col++) {
+                if (Number(ephWeekList[row][col]) > 0) {
+                    countWeekCheck++;
+                }
+            }
+
+            if(i == start) {
+                fullEphWeekList += name.substring(name.length - 2, name.length) + " : "; // 이름
+            }
+        }
+
+        fullEphWeekList += countWeekCheck+"/"+weekProofNum+" 인증퀘스트  |  "+countCheck + "쳌";
+        if(countWeekCheck >= score[0] && countCheck >= score[1]){
+            fullEphWeekList += " 🏆";
+        } else if(countWeekCheck >= score[0]/2 && countCheck >= score[1]/2){
+            fullEphWeekList += " 👍";
+        } else{
+            fullEphWeekList += "  ⬜";
+        }
+        fullEphWeekList +="\n";
 
     }
 

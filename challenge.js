@@ -268,6 +268,15 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         }
 
+        if(msg == "기도짝뽑기"){
+            replier.reply(pickPrayer(replier));
+
+        }
+
+        if(msg == "야너두상추첨"){
+            replier.reply(pickRandom(replier));
+        }
+
         // ----------------------------------
 
     } catch (e) {
@@ -331,6 +340,65 @@ function save(path, filename, content)
     var contentstring = new java.lang.String(content);
     fos.write(contentstring.getBytes());
     fos.close();
+}
+
+function pickPrayer(replier){
+    var ephList = ["다인","도의","보람","채연","현규","사랑","찬울","단희","순종","재훈","한민","한은","찬웅","은혜","원천"];
+    var ephListPick = ["김다인","김도의","김보람","김채연","박현규","선우사랑","안찬울","이단희","이순종","이재훈","이한민","이한은","임찬웅","장은혜","진원천"];
+    var visited = [];
+    var txt = "기도자\t👉\t기도 대상자(기도짝)\n\n";
+
+    replier.reply("셋");
+    replier.reply("둘");
+    replier.reply("하나");
+    replier.reply("🥁🥁🥁🥁");
+
+    for (let i = 0; i < ephList.length; i++) {
+        txt += ephList[i] + "  \t👉\t";
+        while (true) {
+            let randomIndex = Math.floor((Math.random() * ephListPick.length));
+            let recipient = ephListPick[randomIndex];
+            if(recipient != ephList[i] && !visited[randomIndex]) {
+                txt += recipient+"\n";
+                visited[randomIndex] = true;
+                break;
+            }
+        }
+    }
+
+    return txt;
+}
+
+function pickRandom(replier){
+    var ephList = ["김도의","김보람","김채연","박현규","이순종","이한민","임찬웅","장은혜","진원천"];
+    var visited = [];
+    var txt = "야, 너두 완벽할 수 있어 !! 👊\n\n🎊";
+
+    replier.reply("셋");
+    replier.reply("둘");
+    replier.reply("하나");
+    replier.reply("🥁🥁🥁🥁");
+
+    for (let i = 0; i < 2; i++) {
+        while (true) {
+            let randomIndex = Math.floor((Math.random() * ephList.length));
+            let winner = ephList[randomIndex];
+            if(!visited[randomIndex]) {
+                txt += winner;
+                visited[randomIndex] = true;
+                if(i==0){
+                    txt += "\t";
+                } else {
+                    txt += "🎉";
+                }
+                break;
+            }
+
+        }
+    }
+
+    return txt;
+
 }
 
 function printInfo(sender, month) {

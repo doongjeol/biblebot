@@ -268,7 +268,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
         }
 
-        if(msg == "기도짝뽑기"){
+        if(msg == "기도짝추첨"){
             replier.reply(pickPrayer(replier));
 
         }
@@ -343,8 +343,8 @@ function save(path, filename, content)
 }
 
 function pickPrayer(replier){
-    var ephList = ["다인","도의","보람","채연","현규","사랑","찬울","단희","순종","재훈","한민","한은","찬웅","은혜","원천"];
-    var ephListPick = ["김다인","김도의","김보람","김채연","박현규","선우사랑","안찬울","이단희","이순종","이재훈","이한민","이한은","임찬웅","장은혜","진원천"];
+    var ephList = ["다인","도의","보람","채연","현규","사랑","찬울","단희","순종","한민","한은","찬웅","은혜","원천"];
+    var ephListPick = ["김다인","김도의","김보람","김채연","박현규","선우사랑","안찬울","이단희","이순종","이한민","이한은","임찬웅","장은혜","진원천"];
     var visited = [];
     var txt = "기도자\t👉\t기도 대상자(기도짝)\n\n";
 
@@ -641,7 +641,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "5";
             month[2] = "6";
             weekProofNum = "14";
-            score[0] = 13;
+            score[0] = 11;
             score[1] = 72;
             break;
         case "3" :
@@ -649,7 +649,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "8";
             month[2] = "9";
             weekProofNum = "14";
-            score[0] = 13;
+            score[0] = 10;
             score[1] = 73;
             break;
         case "4" :
@@ -657,7 +657,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "11";
             month[2] = "12";
             weekProofNum = "14";
-            score[0] = 13;
+            score[0] = 10;
             score[1] = 73;
             break;
     }
@@ -707,9 +707,12 @@ function printQuarterInfo(quarter,replier) {
         fullEphWeekList += countWeekCheck+"/"+weekProofNum+" 인증퀘스트  |  "+countCheck + "쳌";
         if(countWeekCheck >= score[0] && countCheck >= score[1]){
             fullEphWeekList += " 🏆";
-        } else if(countWeekCheck >= score[0]/2 && countCheck >= score[1]/2){
+        } else if(countCheck >= score[1]/2){
             fullEphWeekList += " 👍";
-        } else{
+        } else if(countCheck <= 10){
+            fullEphWeekList += " 🙃";
+        }
+        else{
             fullEphWeekList += "  ⬜";
         }
         fullEphWeekList +="\n";

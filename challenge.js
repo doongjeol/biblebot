@@ -10,8 +10,9 @@ var rawSuffix = "월_raw.csv";
 var emojiSuffix = "월_emoji.csv";
 var inputProof = ["#ㅊㅋ", "#체크","#ㅎㅈ","#해제","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅊㅋ","체크","ㅎㅈ","해제"];
 var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗"];
-var ephTotalUser = 15;
+var ephTotalUser = 16;
 var roomName = "";
+var ephListPick = ["김다인","김도의","김보람","김채연","박현규","박지수","선우사랑","안찬울","이건민","이단희","이순종","이한민","이한은","임찬웅","장수빈","장은혜"];
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
     // msg 공백제거
@@ -277,6 +278,16 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             replier.reply(pickRandom(replier));
         }
 
+        // 디버그
+        if(msg == "하이"){
+            replier.reply("헙")
+            let list2 = ridLastName(ephListPick)
+
+            for (let i = 0; i < list2.length; i++) {
+                replier.reply(list2[i])
+            }
+        }
+
         // ----------------------------------
 
     } catch (e) {
@@ -342,9 +353,18 @@ function save(path, filename, content)
     fos.close();
 }
 
+function ridLastName(ephListPick){
+    let ephList = []
+    for (let i = 0; i < ephListPick.length; i++) {
+        let length = ephListPick[i].length
+        let name = ephListPick[i].substring(length-2,length);
+        ephList.push(name)
+    }
+
+    return ephList
+}
+
 function pickPrayer(replier){
-    var ephList = ["다인","도의","보람","채연","현규","사랑","찬울","단희","순종","한민","한은","찬웅","은혜","원천"];
-    var ephListPick = ["김다인","김도의","김보람","김채연","박현규","선우사랑","안찬울","이단희","이순종","이한민","이한은","임찬웅","장은혜","진원천"];
     var visited = [];
     var txt = "기도자\t👉\t기도 대상자(기도짝)\n\n";
 
@@ -353,6 +373,7 @@ function pickPrayer(replier){
     replier.reply("하나");
     replier.reply("🥁🥁🥁🥁");
 
+    let ephList = ridLastName(ephListPick);
     for (let i = 0; i < ephList.length; i++) {
         txt += ephList[i] + "  \t👉\t";
         while (true) {
@@ -370,7 +391,7 @@ function pickPrayer(replier){
 }
 
 function pickRandom(replier){
-    var ephList = ["김도의","이순종","장은혜","진원천"];
+    var ephLastList = ["김도의","이순종","장은혜","진원천"];
     var visited = [];
     var txt = "야, 너두 완벽할 수 있어 !! 👊\n\n🎊";
 
@@ -381,8 +402,8 @@ function pickRandom(replier){
 
     for (let i = 0; i < 2; i++) {
         while (true) {
-            let randomIndex = Math.floor((Math.random() * ephList.length));
-            let winner = ephList[randomIndex];
+            let randomIndex = Math.floor((Math.random() * ephLastList.length));
+            let winner = ephLastList[randomIndex];
             if(!visited[randomIndex]) {
                 txt += winner;
                 visited[randomIndex] = true;

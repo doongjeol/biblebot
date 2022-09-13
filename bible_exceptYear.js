@@ -4,7 +4,9 @@ const scriptName = "bible_exceptYear.js";
 var filepath = "/storage/emulated/0/KakaoTalkDownload/";
 var inputBible = ["오늘 성경", "어제 성경","내일 성경","이번주 성경","이번달 성경","월 성경","날짜 성경"];
 var inputBibleAbb = ["ㅇㄴ","ㅇㅈ","ㄴㅇ","ㅇㅂㅈ","ㅇㅂㄷ","ㅇ"];
-var inputEtc = ["심심해", "점심","성경","체크키워드"];
+var inputRec = ["오늘 암송", "어제 암송","내일 암송","이번주 암송","이번달 암송","월 암송","날짜 암송"];
+var inputRecAbb = ["ㅇㄴㅇㅅ","ㅇㅈㅇㅅ","ㄴㅇㅇㅅ","ㅇㅂㅈㅇㅅ","ㅇㅂㄷㅇㅅ","ㅇㅇㅅ"];
+var inputEtc = ["심심해", "점심","성경","체크키워드","암송"];
 var inputHelpKeyword = ["목록", "얼봇","키워드"];
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
@@ -13,6 +15,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
     var help = "";
     if(msg == inputHelpKeyword[0] || msg ==inputHelpKeyword[1] || msg == inputHelpKeyword[2]){
         help = bibleHelp(); // 맥체인 성경 키워드 안내
+
         help += "\n\n------------ 기타 목록 ------------\n\n";
         for(var i=0 ; i<inputEtc.length ; i++) {
             help += i+1+". "+inputEtc[i];
@@ -25,6 +28,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             help += "\n";
         }
         replier.reply("---- 맥체인 성경 키워드 목록 ----\n\n"+help);
+        replier.reply("---- 암송 키워드 목록 ----\n\n"+recHelp());
+
     }
 
     var help2="";
@@ -298,6 +303,24 @@ function bibleHelp() {
         } else {
             help += i + 1 + ". " + "\'" + inputBible[i]+ "\'"
             + "\n" + " * N월 N일 성경으로 입력해주세요.\n 예시 : '12월 25일 성경'";
+        }
+        help +="\n";
+    }
+
+    return help;
+}
+
+function recHelp() {
+    var help = "";
+    for(var i=0 ; i<inputRec.length ; i++){
+        if(i<6) {
+            help += i + 1 + ". " + "\'" + inputRec[i] + "\'  또는  " +  "\'" +inputRecAbb[i]+ "\'" ;
+            if (i == 5) {
+                help += "\n" + " * N월 암송으로 입력해주세요.\n  예시 : '3월 암송' 또는 '3ㅇ ㅇㅅ'";
+            }
+        } else {
+            help += i + 1 + ". " + "\'" + inputRec[i]+ "\'"
+                + "\n" + " * N월 N일 암송으로 입력해주세요.\n 예시 : '12월 25일 암송'";
         }
         help +="\n";
     }

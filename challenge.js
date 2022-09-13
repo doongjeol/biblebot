@@ -244,11 +244,13 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             replier.reply("이번주 인증 동기화 완료");
         }
 
-        // 특정 단원 이번달 성경읽은결과
+        // sender 이번달 성경읽은결과
         if(msg.includes("님ㅈㅎ")){
             var msgArr1 = msg.split("님");
             sender = msgArr1[0].substring(0, msgArr1[0].length);
             msg = inputProof[6];
+
+            replier.reply(printInfo(sender, month))
 
         }
         // N월 인증결과
@@ -692,7 +694,9 @@ function printQuarterInfo(quarter,replier) {
         fullEphWeekList = "---------- "+quarter+"분기 결과 ----------\n";
     }
 
-
+    let tempWeekProofNum = weekProofNum ; // 3분기에만
+    let tempFirstScore = score[0]; // 3분기에만
+    let tempSecondScore = score[1]; // 3분기에만
     for (var row = 1; row <= ephTotalUser; row++) {
         var name = ephWeekList[row][0];
         var countCheck = 0;
@@ -725,7 +729,16 @@ function printQuarterInfo(quarter,replier) {
             }
         }
 
-        fullEphWeekList += countWeekCheck+"/"+weekProofNum+" 인증퀘스트  |  "+countCheck + "쳌";
+        // 3분기만 -debug
+        if(quarter == 3) {
+            if (name == "장수빈" || name == "박지수" || name == "이건민") {
+                weekProofNum = 9;
+                score[0] -= 5
+                score[1] -= 31
+            }
+        }
+
+        fullEphWeekList += countWeekCheck + "/" + weekProofNum + " 인증퀘스트  |  " + countCheck + "쳌";
         if(countWeekCheck >= score[0] && countCheck >= score[1]){
             fullEphWeekList += " 🏆";
         } else if(countCheck >= score[1]/2){
@@ -737,6 +750,12 @@ function printQuarterInfo(quarter,replier) {
             fullEphWeekList += "  ⬜";
         }
         fullEphWeekList +="\n";
+
+        if(quarter == 3) {
+            weekProofNum = tempWeekProofNum; // 3분기에만
+            score[0] = tempFirstScore; // 3분기에만
+            score[1] = tempSecondScore; // 3분기에만
+        }
 
     }
 

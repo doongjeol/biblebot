@@ -688,6 +688,9 @@ function printQuarterInfo(quarter,replier) {
             score[0] = 10;
             score[1] = 73;
             break;
+        default :
+            return null;
+            break;
     }
 
     var ephWeekList = read(filepathEphWeekList, "ephWeekProof.csv");

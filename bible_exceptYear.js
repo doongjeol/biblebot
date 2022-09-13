@@ -38,7 +38,10 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         replier.reply("---- 맥체인 성경 키워드 목록 ----\n\n"+help2);
     }
 
-
+    if(msg == "암송"){
+        help2 = recHelp(); // 암송 키워드 안내
+        replier.reply("---- 암송 키워드 목록 ----\n\n"+help2);
+    }
 
     // msg 공백제거
     msg = trimSpace(msg);

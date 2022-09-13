@@ -263,7 +263,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         }
 
         // N월 인증결과
-        if(msg.includes("분기결과")){
+        if(msg.includes("분기결과")||msg.includes("분기중간점검")){
             var msgArr1 = msg.split("분");
             var qNum = msgArr1[0].substring(0, msgArr1[0].length);
 
@@ -649,6 +649,7 @@ function printQuarterInfo(quarter,replier) {
     var start = 0;
     var score = [];
     var weekProofNum = 0;
+    var weekCheckNum = 0;
 
     switch (quarter) {
         case "1" :
@@ -656,6 +657,7 @@ function printQuarterInfo(quarter,replier) {
             month[2] = "3";
             start = 1;
             weekProofNum = "9";
+            weekCheckNum = "59";
             score[0] = 8;
             score[1] = 42;
             break;
@@ -664,6 +666,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "5";
             month[2] = "6";
             weekProofNum = "14";
+            weekCheckNum = "91";
             score[0] = 11;
             score[1] = 72;
             break;
@@ -672,6 +675,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "8";
             month[2] = "9";
             weekProofNum = "14";
+            weekCheckNum = "92";
             score[0] = 10;
             score[1] = 73;
             break;
@@ -680,6 +684,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "11";
             month[2] = "12";
             weekProofNum = "14";
+            weekCheckNum = "92"
             score[0] = 10;
             score[1] = 73;
             break;
@@ -691,10 +696,18 @@ function printQuarterInfo(quarter,replier) {
     if(month == null){
         fullEphWeekList = "입력하신 월을 확인해주세요.";
     } else{
-        fullEphWeekList = "---------- "+quarter+"분기 결과 ----------\n";
+        fullEphWeekList = "----------- "+quarter+"분기  -----------\n" +
+            "완벽상 자격 : "+score[0]+"인증이상 | "+ score[1]+"쳌이상\n"
+        if(quarter == 3) {
+            fullEphWeekList += "* 신입단원 - 7인증이상 | 50쳌이상\n"
+        }
+        fullEphWeekList += "\n🏆 : 완벽상\n🎖 : 명불허전상 (절반이상쳌)\n🙃 : 야너두상후보 (10쳌이하)"
+        replier.reply(fullEphWeekList)
+        fullEphWeekList = ""
     }
 
     let tempWeekProofNum = weekProofNum ; // 3분기에만
+    let tempWeekCheckNum = weekCheckNum ; // 3분기에만
     let tempFirstScore = score[0]; // 3분기에만
     let tempSecondScore = score[1]; // 3분기에만
     for (var row = 1; row <= ephTotalUser; row++) {
@@ -732,27 +745,34 @@ function printQuarterInfo(quarter,replier) {
         // 3분기만 -debug
         if(quarter == 3) {
             if (name == "장수빈" || name == "박지수" || name == "이건민") {
-                weekProofNum = 9;
-                score[0] -= 5
-                score[1] -= 31
+                weekProofNum -= 5;
+                weekCheckNum -= 31;
+                score[0] = 7
+                score[1] = 50
             }
         }
 
-        fullEphWeekList += countWeekCheck + "/" + weekProofNum + " 인증퀘스트  |  " + countCheck + "쳌";
+        fullEphWeekList += countWeekCheck + "/" + weekProofNum + "인증  |  " + countCheck +"/" + weekCheckNum + "쳌";
         if(countWeekCheck >= score[0] && countCheck >= score[1]){
             fullEphWeekList += " 🏆";
         } else if(countCheck >= score[1]/2){
-            fullEphWeekList += " 👍";
+            fullEphWeekList += " 🎖";
         } else if(countCheck <= 10){
-            fullEphWeekList += " 🙃";
+            // 보고싶어 단원
+            if(name == "김도의" || name == "박현규" || name == "이한민"){
+                fullEphWeekList += "  ";
+            } else {
+                fullEphWeekList += " 🙃";
+            }
         }
         else{
-            fullEphWeekList += "  ⬜";
+            fullEphWeekList += "  ";
         }
         fullEphWeekList +="\n";
 
         if(quarter == 3) {
             weekProofNum = tempWeekProofNum; // 3분기에만
+            weekCheckNum = tempWeekCheckNum // 3분기에만
             score[0] = tempFirstScore; // 3분기에만
             score[1] = tempSecondScore; // 3분기에만
         }

@@ -755,7 +755,7 @@ function printQuarterInfo(quarter,replier) {
         fullEphWeekList += countWeekCheck + "/" + weekProofNum + "인증  |  " + countCheck +"/" + weekCheckNum + "쳌";
         if(countWeekCheck >= score[0] && countCheck >= score[1]){
             fullEphWeekList += " 🏆";
-        } else if(countCheck >= score[1]/2){
+        } else if(countCheck >= weekCheckNum/2){
             fullEphWeekList += " 🎖";
         } else if(countCheck <= 10){
             // 보고싶어 단원

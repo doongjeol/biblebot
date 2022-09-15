@@ -11,7 +11,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     // 도움말
     if(msg == "월암송" || msg == inputRecAbb[5]){
-        replier.reply("N월 암으로 입력해주세요.\n 예시 : 3월 암송");
+        replier.reply("N월 암송으로 입력해주세요.\n 예시 : 3월 암송");
     }
 
     if(msg == "날짜암송"){
@@ -158,8 +158,8 @@ function checkDateRec(date){
     for (var i = 0; i < data.length; i++) {
         var todayBible = data[i][0];
         if (isToday(todayBible,date)) {
-            data[i][1] = data[i][1].replace("개행","\n")
-            data[i][2] = data[i][2].replace("개행","\n")
+            data[i][1] = data[i][1].replace(/개행/gi,"\n")
+            data[i][2] = data[i][2].replace(/개행/gi,"\n")
             return data[i];
         }
     }

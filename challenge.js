@@ -117,11 +117,11 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             var msgArr = msg.split("년");
             var year = msgArr[0].substring(1, msgArr[0].length);
             var month = 1;
-            // for(var month = 1; month <= 12 ; month ++) {
+            replier.reply(sender + "님 " + year + outputSuffix[3]);
+            for(var month = 1; month <= 12 ; month ++) {
                 var printData = printInfoByYear(sender, year, month, replier);
-                replier.reply(sender + "님 " + month + outputSuffix[2]);
                 replier.reply(month + "월\n" + printData);
-            // }
+            }
         }
 
         if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7 && isChallenge) {

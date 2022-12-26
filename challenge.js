@@ -5,16 +5,20 @@ var filepathCallendarRaw = "/storage/emulated/0/KakaoTalkDownload/challengeBot/c
 var filepathCallendarEmoji = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_emoji/";
 var filepathEphWeekList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/ephlist/";
 var filepathSave = "/storage/emulated/0/KakaoTalkDownload/challengeBot/userData/";
+var filepathYear = "/storage/emulated/0/KakaoTalkDownload/challengeBot/year/";
 var filepathList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/list/"
 var rawSuffix = "월_raw.csv";
 var emojiSuffix = "월_emoji.csv";
 var inputProof = ["#ㅊㅋ", "#체크","#ㅎㅈ","#해제","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅊㅋ","체크","ㅎㅈ","해제"];
-var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗"];
-var ephTotalUser = 16;
+var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗","년 조회결과😊"];
 var roomName = "";
-var ephListPick = ["김다인","김도의","김보람","김채연","박현규","박지수","선우사랑","안찬울","이건민","이단희","이순종","이한민","이한은","임찬웅","장수빈","장은혜"];
+var ephListPick = ["김다인","김보람","김채연","박현규","박지수","선우사랑","안찬울","이단희","이순종","이한민","이한은","임찬웅","장수빈","장은혜"];
+var ephTotalUser = ephListPick.length;
+var ephLastList = ["김도의","이순종","장은혜","진원천"];
+var r ;
 
 function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+    r = replier;
     // msg 공백제거
     msg = trimSpace(msg);
     roomName = room;
@@ -67,6 +71,7 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
 
     var viewMonthFlag = false;
     var viewDayFlag = false;
+    var viewYearFlag = false;
 
     if(msg=="#월조회" || msg == "#월ㅈㅎ"){
         replier.reply("'#N월 ㅈㅎ'으로 입력해주세요.\n" +"  예시 : #3월 ㅈㅎ");
@@ -85,6 +90,8 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         viewMonthFlag = true;
     } else if(msg.includes("#")&&msg.includes("월")&&msg.includes("일")) {
         viewDayFlag = true;
+    } else if(msg.includes("#")&&msg.includes("년")) {
+        viewYearFlag = true;
     }
 
     try {
@@ -101,6 +108,26 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
         if (msg == inputProof[6] || msg == inputProof[7]) {
             var date = new Date();
             var month = getMonth(date);
+            var printData = printInfo(sender, month);
+            replier.reply(sender + "님 " + month + outputSuffix[2]);
+            replier.reply(month + "월\n" + printData);
+        }
+
+        // 특정 연도의 체크 현황 보기
+        if (viewYearFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <9 && isChallenge) {
+            var msgArr = msg.split("년");
+            var year = msgArr[0].substring(1, msgArr[0].length);
+            var month = 1;
+            // for(var month = 1; month <= 12 ; month ++) {
+                var printData = printInfoByYear(sender, year, month, replier);
+                replier.reply(sender + "님 " + month + outputSuffix[2]);
+                replier.reply(month + "월\n" + printData);
+            // }
+        }
+
+        if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7 && isChallenge) {
+            var msgArr = msg.split("월");
+            var month = msgArr[0].substring(1, msgArr[0].length);
             var printData = printInfo(sender, month);
             replier.reply(sender + "님 " + month + outputSuffix[2]);
             replier.reply(month + "월\n" + printData);
@@ -305,10 +332,12 @@ function trimSpace(str) {
     return str.replace(/ /gi,"");
 }
 
-function read(originpath, filename)
-{
+function read(originpath, filename) {
     var file = new java.io.File(originpath+filename);
-    if(file.exists() == false) return null;
+    r.reply(originpath+filename)
+    if(file.exists() === false) {
+        return null;
+    }
     try
     {
         var fis = new java.io.FileInputStream(file);
@@ -393,7 +422,6 @@ function pickPrayer(replier){
 }
 
 function pickRandom(replier){
-    var ephLastList = ["김도의","이순종","장은혜","진원천"];
     var visited = [];
     var txt = "야, 너두 완벽할 수 있어 !! 👊\n\n🎊";
 
@@ -431,6 +459,32 @@ function printInfo(sender, month) {
 
     try{
         userData = read(filepathSave+sender+"/", filename);
+    } catch (error) {
+        replier.reply(error);
+    }
+    if(userData == null){
+        userData = calendarEmoji;
+    }
+
+    var fullCalendar = "";
+
+    // 오늘 날짜 읽기 표시하기
+    for(var row=0 ; row<userData.length ; row++){
+        for(var col = 0 ; col <userData[0].length ; col++) {
+            fullCalendar += userData[row][col]+"  ";
+        }
+        fullCalendar+="\n";
+    }
+    return fullCalendar;
+}
+
+function printInfoByYear(sender, year, month, replier) {
+    var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
+    var filename = senderFileName(sender,month);
+    var userData ;
+
+    try{
+        userData = read(filepathYear+year+"/"+sender+"/", filename);
     } catch (error) {
         replier.reply(error);
     }

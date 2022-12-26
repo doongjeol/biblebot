@@ -5,7 +5,6 @@ var filepathCallendarRaw = "/storage/emulated/0/KakaoTalkDownload/challengeBot/c
 var filepathCallendarEmoji = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_emoji/";
 var filepathEphWeekList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/ephlist/";
 var filepathSave = "/storage/emulated/0/KakaoTalkDownload/challengeBot/userData/";
-var filepathYear = "/storage/emulated/0/KakaoTalkDownload/challengeBot/year/";
 var filepathList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/list/"
 var rawSuffix = "월_raw.csv";
 var emojiSuffix = "월_emoji.csv";
@@ -334,7 +333,6 @@ function trimSpace(str) {
 
 function read(originpath, filename) {
     var file = new java.io.File(originpath+filename);
-    r.reply(originpath+filename)
     if(file.exists() === false) {
         return null;
     }
@@ -484,7 +482,7 @@ function printInfoByYear(sender, year, month, replier) {
     var userData ;
 
     try{
-        userData = read(filepathYear+year+"/"+sender+"/", filename);
+        userData = read(filepathSave+year+"/"+sender+"/", filename);
     } catch (error) {
         replier.reply(error);
     }

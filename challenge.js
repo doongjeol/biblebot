@@ -124,14 +124,6 @@ function response(room, msg, sender, isGroupChat, replier, imageDB, packageName)
             }
         }
 
-        if (viewMonthFlag && (msg.includes(inputProof[4]) || msg.includes(inputProof[5])) && msg.length <7 && isChallenge) {
-            var msgArr = msg.split("월");
-            var month = msgArr[0].substring(1, msgArr[0].length);
-            var printData = printInfo(sender, month);
-            replier.reply(sender + "님 " + month + outputSuffix[2]);
-            replier.reply(month + "월\n" + printData);
-        }
-
         // 특정 날짜 체크
         if (viewDayFlag && (msg.includes(inputProof[8]) || msg.includes(inputProof[9])) && !msg.includes("-") && msg.length <10 && isChallenge) {
             var msgArr1 = msg.split("월");
@@ -477,7 +469,7 @@ function printInfo(sender, month) {
 }
 
 function printInfoByYear(sender, year, month, replier) {
-    var calendarEmoji = read(filepathCallendarEmoji,month+emojiSuffix);
+    var calendarEmoji = read(filepathCallendarEmoji,year+"/"+month+emojiSuffix);
     var filename = senderFileName(sender,month);
     var userData ;
 

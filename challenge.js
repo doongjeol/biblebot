@@ -697,13 +697,13 @@ function printQuarterInfo(quarter,replier) {
 
     switch (quarter) {
         case "1" :
+            month[0] = "1"
             month[1] = "2";
             month[2] = "3";
-            start = 1;
-            weekProofNum = "9";
-            weekCheckNum = "59";
-            score[0] = 8;
-            score[1] = 42;
+            weekProofNum = "12";
+            weekCheckNum = "90";
+            score[0] = 9;
+            score[1] = 72;
             break;
         case "2" :
             month[0] = "4";
@@ -744,10 +744,11 @@ function printQuarterInfo(quarter,replier) {
         fullEphWeekList = "입력하신 월을 확인해주세요.";
     } else{
         fullEphWeekList = "----------- "+quarter+"분기  -----------\n" +
-            "완벽상 자격 : "+score[0]+"인증이상 | "+ score[1]+"쳌이상\n"
-        if(quarter == 3) {
-            fullEphWeekList += "* 신입단원 - 7인증이상 | 50쳌이상\n"
-        }
+            "완벽상 자격 : "+score[0]+"인증이상 | "+ score[1]+"쳌이상\n" +
+            "명불허전상 자격 : "+ (weekCheckNum/2).toFixed()+"쳌이상\n"
+        // if(quarter == 3) {
+        //     fullEphWeekList += "* 신입단원 - 7인증이상 | 50쳌이상\n"
+        // }
         fullEphWeekList += "\n🏆 : 완벽상\n🎖 : 명불허전상 (절반이상쳌)\n🙃 : 야너두상후보 (10쳌이하)"
         replier.reply(fullEphWeekList)
         fullEphWeekList = ""
@@ -790,14 +791,14 @@ function printQuarterInfo(quarter,replier) {
         }
 
         // 3분기만 -debug
-        if(quarter == 3) {
-            if (name == "장수빈" || name == "박지수" || name == "이건민") {
-                weekProofNum -= 5;
-                weekCheckNum -= 31;
-                score[0] = 7
-                score[1] = 50
-            }
-        }
+        // if(quarter == 3) {
+        //     if (name == "장수빈" || name == "박지수" || name == "이건민") {
+        //         weekProofNum -= 5;
+        //         weekCheckNum -= 31;
+        //         score[0] = 7
+        //         score[1] = 50
+        //     }
+        // }
 
         fullEphWeekList += countWeekCheck + "/" + weekProofNum + "인증  |  " + countCheck +"/" + weekCheckNum + "쳌";
         if(countWeekCheck >= score[0] && countCheck >= score[1]){
@@ -806,7 +807,7 @@ function printQuarterInfo(quarter,replier) {
             fullEphWeekList += " 🎖";
         } else if(countCheck <= 10){
             // 보고싶어 단원
-            if(name == "김도의" || name == "박현규" || name == "이한민"){
+            if(name == "보고싶어 단원"){
                 fullEphWeekList += "  ";
             } else {
                 fullEphWeekList += " 🙃";
@@ -817,12 +818,12 @@ function printQuarterInfo(quarter,replier) {
         }
         fullEphWeekList +="\n";
 
-        if(quarter == 3) {
-            weekProofNum = tempWeekProofNum; // 3분기에만
-            weekCheckNum = tempWeekCheckNum // 3분기에만
-            score[0] = tempFirstScore; // 3분기에만
-            score[1] = tempSecondScore; // 3분기에만
-        }
+        // if(quarter == 3) {
+        //     weekProofNum = tempWeekProofNum; // 3분기에만
+        //     weekCheckNum = tempWeekCheckNum // 3분기에만
+        //     score[0] = tempFirstScore; // 3분기에만
+        //     score[1] = tempSecondScore; // 3분기에만
+        // }
 
     }
 

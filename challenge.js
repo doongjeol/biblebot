@@ -1,17 +1,19 @@
 const scriptName = "challenge.js";
 
 var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();    //절대경로
-var filepathCallendarRaw = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_raw/";
-var filepathCallendarEmoji = "/storage/emulated/0/KakaoTalkDownload/challengeBot/callendar_emoji/";
-var filepathEphWeekList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/ephlist/";
-var filepathSave = "/storage/emulated/0/KakaoTalkDownload/challengeBot/userData/";
-var filepathList = "/storage/emulated/0/KakaoTalkDownload/challengeBot/list/"
+var filepathCallendarRaw = "/storage/emulated/0/msgbot/Bots/db/challengeBot/callendar_raw/";
+var filepathCallendarEmoji = "/storage/emulated/0/msgbot/Bots/db/challengeBot/callendar_emoji/";
+var filepathEphWeekList = "/storage/emulated/0/msgbot/Bots/db/challengeBot/ephlist/";
+var filepathSave = "/storage/emulated/0/msgbot/Bots/db/challengeBot/userData/";
+var filepathList = "/storage/emulated/0/msgbot/Bots/db/challengeBot/list/"
 var rawSuffix = "월_raw.csv";
 var emojiSuffix = "월_emoji.csv";
 var inputProof = ["#ㅊㅋ", "#체크","#ㅎㅈ","#해제","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅊㅋ","체크","ㅎㅈ","해제"];
 var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗","년 조회결과😊"];
 var roomName = "";
-var ephListPick = ["김다인","김보람","김채연","박현규","박지수","안찬울","이단희","이순종","이한민","이한은","임찬웅","장수빈","장은혜","김성준","이예은","이하나","조은경"];
+var ephListPick = ["김다인","김보람","김채연","박현규","박지수","안찬울","이단희","이순종","이한민","이한은","임찬웅","장수빈","장은혜"];
+var newList = ["김성준","이예은","이하나","조은경"];
+ephListPick = ephListPick.concat(newList);
 var ephTotalUser = ephListPick.length;
 var ephLastList = ["김도의","이순종","장은혜","진원천"];
 var r ;
@@ -746,9 +748,9 @@ function printQuarterInfo(quarter,replier) {
         fullEphWeekList = "----------- "+quarter+"분기  -----------\n" +
             "완벽상 자격 : "+score[0]+"인증이상 | "+ score[1]+"쳌이상\n" +
             "명불허전상 자격 : "+ (weekCheckNum/2).toFixed()+"쳌이상\n"
-        // if(quarter == 3) {
-        //     fullEphWeekList += "* 신입단원 - 7인증이상 | 50쳌이상\n"
-        // }
+        if(quarter == 3) {
+            fullEphWeekList += "* 신입단원 - 7인증이상 | 50쳌이상\n"
+        }
         fullEphWeekList += "\n🏆 : 완벽상\n🎖 : 명불허전상 (절반이상쳌)\n🙃 : 야너두상후보 (10쳌이하)"
         replier.reply(fullEphWeekList)
         fullEphWeekList = ""
@@ -818,12 +820,12 @@ function printQuarterInfo(quarter,replier) {
         }
         fullEphWeekList +="\n";
 
-        // if(quarter == 3) {
-        //     weekProofNum = tempWeekProofNum; // 3분기에만
-        //     weekCheckNum = tempWeekCheckNum // 3분기에만
-        //     score[0] = tempFirstScore; // 3분기에만
-        //     score[1] = tempSecondScore; // 3분기에만
-        // }
+        if(quarter == 3) {
+            weekProofNum = tempWeekProofNum; // 3분기에만
+            weekCheckNum = tempWeekCheckNum // 3분기에만
+            score[0] = tempFirstScore; // 3분기에만
+            score[1] = tempSecondScore; // 3분기에만
+        }
 
     }
 

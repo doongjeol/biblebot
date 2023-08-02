@@ -11,7 +11,7 @@ var emojiSuffix = "월_emoji.csv";
 var inputProof = ["#ㅊㅋ", "#체크","#ㅎㅈ","#해제","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅊㅋ","체크","ㅎㅈ","해제"];
 var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗","년 조회결과😊"];
 var roomName = "";
-var ephListPick = ["김다인","김보람","김채연","박현규","박지수","선우사랑","안찬울","이단희","이순종","이한민","이한은","임찬웅","장수빈","장은혜"];
+var ephListPick = ["김다인","김보람","김채연","박현규","박지수","안찬울","이단희","이순종","이한민","이한은","임찬웅","장수빈","장은혜","김성준","이예은","이하나","조은경"];
 var ephTotalUser = ephListPick.length;
 var ephLastList = ["김도의","이순종","장은혜","진원천"];
 var r ;
@@ -791,14 +791,14 @@ function printQuarterInfo(quarter,replier) {
         }
 
         // 3분기만 -debug
-        // if(quarter == 3) {
-        //     if (name == "장수빈" || name == "박지수" || name == "이건민") {
-        //         weekProofNum -= 5;
-        //         weekCheckNum -= 31;
-        //         score[0] = 7
-        //         score[1] = 50
-        //     }
-        // }
+        if(quarter == 3) {
+            if (name == "김성준" || name == "이예은" || name == "이하나" || name == "조은경") {
+                weekProofNum -= 5;
+                weekCheckNum -= 31;
+                score[0] = 7
+                score[1] = 50
+            }
+        }
 
         fullEphWeekList += countWeekCheck + "/" + weekProofNum + "인증  |  " + countCheck +"/" + weekCheckNum + "쳌";
         if(countWeekCheck >= score[0] && countCheck >= score[1]){

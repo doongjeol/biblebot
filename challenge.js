@@ -895,6 +895,7 @@ function checkProof(month, day, sender, replier){
 
     try{
         userData = read(filepathSave+sender+"/", filename);
+        
     } catch (error) {
         replier.reply(error);
     }

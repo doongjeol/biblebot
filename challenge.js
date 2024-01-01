@@ -703,7 +703,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "2";
             month[2] = "3";
             weekProofNum = "12";
-            weekCheckNum = "90";
+            weekCheckNum = "91";
             score[0] = 9;
             score[1] = 72;
             break;

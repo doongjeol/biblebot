@@ -1,7 +1,7 @@
 const scriptName = "bible_exceptYear.js";
 
 // var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();    //절대경로
-var filepath = "/storage/emulated/0/KakaoTalkDownload/";
+var filepath = "/storage/emulated/0/msgbot/Bots/db/";
 var inputBible = ["오늘 성경", "어제 성경","내일 성경","이번주 성경","이번달 성경","월 성경","날짜 성경"];
 var inputBibleAbb = ["ㅇㄴ","ㅇㅈ","ㄴㅇ","ㅇㅂㅈ","ㅇㅂㄷ","ㅇ"];
 var inputRec = ["오늘 암송", "어제 암송","내일 암송","이번주 암송","이번달 암송","월 암송","날짜 암송"];
@@ -204,6 +204,7 @@ function checkDateBibleExceptYear(date){
 
 function checkWeekBible() {
     var today = new Date();
+    // today = new Date(2024, 1, 29); //debug
     var day = today.getDay();
 
     var diff = 0;

@@ -703,7 +703,7 @@ function printQuarterInfo(quarter,replier) {
             month[1] = "2";
             month[2] = "3";
             weekProofNum = "12";
-            weekCheckNum = "91";
+            weekCheckNum = "90";
             score[0] = 9;
             score[1] = 72;
             break;
@@ -1201,11 +1201,11 @@ function isCheckAll(month,sender,replier) {
         for(var col = 0 ; col <calendarRaw[0].length ; col++) {
             if(!flag){
                 break;
-            } else if(row == indexFirstR && col >= indexFirstC && (userData[row][col] == "✅" || userData[row][col] == "💟")){
+            } else if(row == indexFirstR && col >= indexFirstC && (userData[row][col] == "✅" || userData[row][col] == "💟" || userData[row][col] == "🫰")){
                 count ++;
-            } else if(row == indexLastR && col <= indexLastC && (userData[row][col] == "✅" || userData[row][col] == "💟")){
+            } else if(row == indexLastR && col <= indexLastC && (userData[row][col] == "✅" || userData[row][col] == "💟"|| userData[row][col] == "🫰")){
                 count ++;
-            } else if(row > indexFirstR && row < indexLastR && (userData[row][col] == "✅" || userData[row][col] == "💟")){
+            } else if(row > indexFirstR && row < indexLastR && (userData[row][col] == "✅" || userData[row][col] == "💟"|| userData[row][col] == "🫰")){
                 count ++;
             }
         }

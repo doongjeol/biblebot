@@ -1,13 +1,13 @@
 const scriptName = "challenge.js";
 
-var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();    //절대경로
+// var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();    //절대경로
 var filepathCallendarRaw = "/storage/emulated/0/msgbot/Bots/db/challengeBot/callendar_raw/";
 var filepathCallendarEmoji = "/storage/emulated/0/msgbot/Bots/db/challengeBot/callendar_emoji/";
 var filepathEphWeekList = "/storage/emulated/0/msgbot/Bots/db/challengeBot/ephlist/";
 var filepathSave = "/storage/emulated/0/msgbot/Bots/db/challengeBot/userData/";
 var filepathList = "/storage/emulated/0/msgbot/Bots/db/challengeBot/list/"
 var rawSuffix = "_raw.csv";
-var emojiSuffix = "월_emoji.csv";
+var emojiSuffix = "_emoji.csv";
 var inputProof = ["#ㅊㅋ", "#체크","#ㅎㅈ","#해제","ㅈㅎ","조회","#ㅈㅎ","#조회","ㅊㅋ","체크","ㅎㅈ","해제"];
 var outputSuffix = ["님 체크완료👏","님 해제완료🙂","월 조회결과🤗","년 조회결과😊"];
 var roomName = "";
